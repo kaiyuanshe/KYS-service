@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import 'dotenv/config';
 import Koa from 'koa';
 import { useKoaServer } from 'routing-controllers';
 
