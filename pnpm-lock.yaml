@@ -9,7 +9,7 @@ specifiers:
   class-transformer: ^0.5.1
   class-validator: ^0.13.2
   dotenv: ^16.0.3
-  file-type: ^16
+  file-type: ^16.5.4
   husky: ^8.0.1
   koa: ^2.13.4
   koa-bodyparser: ^4.3.0
@@ -21,7 +21,7 @@ specifiers:
   routing-controllers: ^0.9.0
   ts-node-dev: ^2.0.0
   typescript: ~4.8.4
-  web-fetch: ^1.2.2
+  web-fetch: ^1.2.4
 
 dependencies:
   '@azure/storage-blob': 12.12.0
@@ -35,7 +35,7 @@ dependencies:
   koa-router: 12.0.0
   reflect-metadata: 0.1.13
   routing-controllers: 0.9.0_e6kgdsnyya5caxg3ysdyxrqm7a
-  web-fetch: 1.2.2
+  web-fetch: 1.2.4
 
 devDependencies:
   '@types/koa': 2.13.5
@@ -501,6 +501,14 @@ packages:
     resolution: {integrity: sha512-/K3ds8TRAfBvi5vfjuz8y6+GiAYBZ0x4tXv1Av6CWBWn0IlADc+ZX9pMq7oU0fNQPnBwIZl3rmeLp6SBApbxSQ==}
     dev: true
 
+  /@types/jsdom/20.0.0:
+    resolution: {integrity: sha512-YfAchFs0yM1QPDrLm2VHe+WHGtqms3NXnXAMolrgrVP6fgBHHXy1ozAbo/dFtPNtZC/m66bPiCTWYmqp1F14gA==}
+    dependencies:
+      '@types/node': 18.11.9
+      '@types/tough-cookie': 4.0.2
+      parse5: 7.1.1
+    dev: false
+
   /@types/keygrip/1.0.2:
     resolution: {integrity: sha512-GJhpTepz2udxGexqos8wgaBx4I/zWIDPh/KOGEwAqtuGDkOUJu5eFvwmdBX4AmB8Odsr+9pHCQqiAqDL/yKMKw==}
     dev: true
@@ -576,6 +584,10 @@ packages:
   /@types/strip-json-comments/0.0.30:
     resolution: {integrity: sha512-7NQmHra/JILCd1QqpSzl8+mJRc8ZHz3uDm8YV1Ks9IhK0epEiTw8aIErbvH9PI+6XbqhyIQy3462nEsn7UVzjQ==}
     dev: true
+
+  /@types/tough-cookie/4.0.2:
+    resolution: {integrity: sha512-Q5vtl1W5ue16D+nIaW8JWebSSraJVlK+EthKn7e7UcD4KWsaSJ8BqGPXNaPghgtcn/fhvrN17Tv8ksUsQpiplw==}
+    dev: false
 
   /@types/tunnel/0.0.3:
     resolution: {integrity: sha512-sOUTGn6h1SfQ+gbgqC364jLFBw2lnFqkgF3q0WovEHRLMrVD1sd5aufqi/aJObLekJO+Aq5z646U4Oxy6shXMA==}
@@ -2303,8 +2315,8 @@ packages:
     engines: {node: '>=6'}
     dev: false
 
-  /puppeteer-core/19.2.0:
-    resolution: {integrity: sha512-wdoZDzf46y1ScpPEUDAzIWDmvG272BbdqSvDMvtYNjy2UJZT/j5OS5k813o2lfT4HtOle79eByCLs24iXbat1g==}
+  /puppeteer-core/19.2.2:
+    resolution: {integrity: sha512-faojf+1pZ/tHXSr4x1q+9MVd9FrL3rpdbC0w7qN7MNClMoLuCvMbpR4vzcjoiJYgclt1n+SOPUOmHQViTw6frw==}
     engines: {node: '>=14.1.0'}
     dependencies:
       cross-fetch: 3.1.5
@@ -2995,12 +3007,13 @@ packages:
       xml-name-validator: 4.0.0
     dev: false
 
-  /web-fetch/1.2.2:
-    resolution: {integrity: sha512-iJeLuniT3PzEtoHfgYIpX9pIFdGGAGNmHubMtckL0lW79o6PcTgWKCh9YuHX2IOJiWwy+/KLLGXa3biel8A+/A==}
+  /web-fetch/1.2.4:
+    resolution: {integrity: sha512-qBjmgpJ6PvDddx1LuDxp2Y/2i10IyJuzDe8y2TZVYCbJJJm/of1r+RAZolf4tUBcym9yTxtZAWCL+9tuTMhDJw==}
     hasBin: true
     requiresBuild: true
     dependencies:
       '@tech_query/node-toolkit': 1.2.0
+      '@types/jsdom': 20.0.0
       array-unique-proposal: 0.3.4
       commander-jsx: 0.6.1
       file-type: 16.5.4
@@ -3009,7 +3022,7 @@ packages:
       jsdom: 20.0.2
       lodash.memoize: 4.1.2
       node-fetch: 2.6.7
-      puppeteer-core: 19.2.0
+      puppeteer-core: 19.2.2
       tslib: 2.4.1
       turndown: 7.1.1
       turndown-plugin-gfm: 1.0.2

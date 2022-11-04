@@ -1,7 +1,6 @@
 import { parse } from 'path';
-import { promises } from 'fs';
 import { BodyParam, JsonController, Post } from 'routing-controllers';
-import { savePage } from 'web-fetch';
+import { loadPage, fetchAsset } from 'web-fetch';
 
 import { uploadToAzureBlob } from '../utility';
 
@@ -9,18 +8,23 @@ import { uploadToAzureBlob } from '../utility';
 export class CrawlerController {
     @Post('/task/page')
     async createPageTask(@BodyParam('source') source: string) {
-        const { name } = parse(source),
-            baseURI = 'https://ows.blob.core.chinacloudapi.cn/$web/article/';
+        const scope = parse(source).name,
+            folder = 'article';
+        const baseURI = `https://ows.blob.core.chinacloudapi.cn/$web/${folder}`,
+            {
+                window: { document }
+            } = await loadPage(source);
 
-        await savePage({ source, baseURI, rootFolder: '.tmp' });
+        for await (const { MIME, name, data } of fetchAsset(document, {
+            scope,
+            baseURI
+        })) {
+            await uploadToAzureBlob(data, `${folder}/${name}`, MIME);
 
-        await uploadToAzureBlob(
-            await promises.readFile(`.tmp/${name}.html`, { encoding: 'utf-8' }),
-            `article/${name}.html`,
-            'text/html'
-        );
+            console.log(`[upload] ${baseURI}${name}`);
+        }
         return {
-            targetURL: new URL(`${name}.html`, baseURI) + ''
+            targetURL: new URL(`${scope}.html`, baseURI) + ''
         };
     }
 }
