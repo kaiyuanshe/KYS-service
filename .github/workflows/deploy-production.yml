@@ -8,7 +8,7 @@ on:
         tags:
             - v*
 env:
-    ARTIFACT_PATH: /tmp/artifact.tar
+    ARTIFACT_PATH: ~/artifact.tar
     BOX_NAME: kys-service
     BOX_URL: kaiyuanshe/kys-service
 
@@ -42,7 +42,9 @@ jobs:
               uses: actions/upload-artifact@v3
               with:
                   name: ${{ env.BOX_NAME }}
-                  path: ${{ env.ARTIFACT_PATH }}
+                  path: |
+                      ${{ env.ARTIFACT_PATH }}
+                      ./docker-compose.yml
     pull_to_run:
         name: Pull Docker image to run
         needs: push_to_registries
@@ -57,7 +59,7 @@ jobs:
               uses: garygrossgarten/github-action-scp@release
               with:
                   local: ./
-                  remote: /tmp
+                  remote: ~/
                   host: ${{ secrets.HOST }}
                   username: ${{ secrets.USER }}
                   privateKey: ${{ secrets.SSH_KEY }}
@@ -71,6 +73,7 @@ jobs:
                   command: |
                       sudo docker load < ${{ env.ARTIFACT_PATH }}
                       sudo docker image ls -a
-                      sudo docker rm -f ${{ env.BOX_NAME }}
-                      sudo docker run --rm -d --name ${{ env.BOX_NAME }} -e NODE_ENV=production -e PORT=8080 -p 8080:8080 ${{ env.BOX_URL }}
+                      cd ~/
+                      sudo docker compose down
+                      sudo docker compose up -d
                       sudo docker image prune -a -f

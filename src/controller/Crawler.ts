@@ -21,7 +21,7 @@ export class CrawlerController {
     ): Promise<PageTaskModel> {
         const scope = parse(source).name,
             folder = 'article';
-        const baseURI = `${OWSBlobHost}/$web/${folder}`,
+        const baseURI = `${OWSBlobHost}/$web/${folder}/`,
             {
                 window: { document }
             } = await loadPage(source);
