@@ -22,6 +22,11 @@ jobs:
         steps:
             - uses: actions/checkout@v3
 
+            - name: Inject Environment variables
+              run: |
+                  cat > .env <<EOF
+                  ${{ secrets.ENV_FILE }}
+                  EOF
             - uses: docker/setup-qemu-action@v2
             - uses: docker/setup-buildx-action@v2
 
@@ -64,8 +69,8 @@ jobs:
                   username: ${{ secrets.USER }}
                   privateKey: ${{ secrets.SSH_KEY }}
                   command: |
-                      docker load < ${{ env.ARTIFACT_PATH }}
-                      docker image ls -a
-                      docker rm -f ${{ env.BOX_NAME }}
-                      docker run --rm -d --name ${{ env.BOX_NAME }} -e NODE_ENV=production -p 80:8080 ${{ env.BOX_URL }}
-                      docker image prune -a -f
+                      sudo docker load < ${{ env.ARTIFACT_PATH }}
+                      sudo docker image ls -a
+                      sudo docker rm -f ${{ env.BOX_NAME }}
+                      sudo docker run --rm -d --name ${{ env.BOX_NAME }} -e NODE_ENV=production -p 80:8080 ${{ env.BOX_URL }}
+                      sudo docker image prune -a -f
