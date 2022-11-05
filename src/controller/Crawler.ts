@@ -1,16 +1,27 @@
 import { parse } from 'path';
 import { BodyParam, JsonController, Post } from 'routing-controllers';
+import { ResponseSchema } from 'routing-controllers-openapi';
 import { loadPage, fetchAsset } from 'web-fetch';
 
-import { uploadToAzureBlob } from '../utility';
+import {
+    AZURE_BLOB_CONNECTION,
+    blobEndPointOf,
+    uploadToAzureBlob
+} from '../utility';
+import { PageTaskModel } from '../model/Crawler';
+
+const OWSBlobHost = blobEndPointOf(AZURE_BLOB_CONNECTION);
 
 @JsonController('/crawler')
 export class CrawlerController {
     @Post('/task/page')
-    async createPageTask(@BodyParam('source') source: string) {
+    @ResponseSchema(PageTaskModel)
+    async createPageTask(
+        @BodyParam('source', { required: true }) source: string
+    ): Promise<PageTaskModel> {
         const scope = parse(source).name,
             folder = 'article';
-        const baseURI = `https://ows.blob.core.chinacloudapi.cn/$web/${folder}`,
+        const baseURI = `${OWSBlobHost}/$web/${folder}`,
             {
                 window: { document }
             } = await loadPage(source);
@@ -24,7 +35,7 @@ export class CrawlerController {
             console.log(`[upload] ${baseURI}${name}`);
         }
         return {
-            targetURL: new URL(`${scope}.html`, baseURI) + ''
+            target: new URL(`${scope}.html`, baseURI) + ''
         };
     }
 }
