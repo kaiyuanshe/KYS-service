@@ -8,7 +8,7 @@ on:
         tags:
             - v*
 env:
-    ARTIFACT_PATH: ~/artifact.tar
+    ARTIFACT_PATH: /tmp/artifact.tar
     BOX_NAME: kys-service
     BOX_URL: kaiyuanshe/kys-service
 
