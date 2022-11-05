@@ -2,6 +2,8 @@
 
 **RESTful API** service of [KaiYuanShe][1]
 
+[![Deploy to Production environment](https://github.com/kaiyuanshe/KYS-service/actions/workflows/deploy-production.yml/badge.svg)][2]
+
 ## Development
 
 ### Installation
@@ -30,3 +32,4 @@ pnpm docker
 ```
 
 [1]: https://kaiyuanshe.cn
+[2]: https://github.com/kaiyuanshe/KYS-service/actions/workflows/deploy-production.yml

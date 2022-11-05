@@ -12,5 +12,5 @@ RUN npm set chrome /usr/bin/google-chrome-stable
 COPY . /home/pptruser/app
 RUN npm run build
 
-EXPOSE 80
+EXPOSE 8080
 CMD ["npm", "start"]
