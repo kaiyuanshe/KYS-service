@@ -10,7 +10,7 @@ on:
 env:
     ARTIFACT_PATH: /tmp/artifact.tar
     BOX_NAME: kys-service
-    BOX_URL: kaiyuanshe/${{ env.BOX_NAME }}
+    BOX_URL: kaiyuanshe/kys-service
 
 jobs:
     push_to_registries:
