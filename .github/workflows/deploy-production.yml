@@ -8,7 +8,7 @@ on:
         tags:
             - v*
 env:
-    ARTIFACT_NAME: artifact.tar
+    ARTIFACT_PATH: /tmp/artifact.tar
     BOX_NAME: kys-service
     BOX_URL: kaiyuanshe/kys-service
     BASE_PATH: /home/${{ secrets.USER }}
@@ -37,7 +37,7 @@ jobs:
                   context: .
                   platforms: linux/amd64
                   tags: ${{ env.BOX_URL }}:latest
-                  outputs: type=docker,dest=/tmp/${{ env.ARTIFACT_NAME }}
+                  outputs: type=docker,dest=${{ env.ARTIFACT_PATH }}
 
             - name: Pick Docker Compose
               run: mv ./docker-compose.yml ./start.sh /tmp
@@ -47,7 +47,7 @@ jobs:
               with:
                   name: ${{ env.BOX_NAME }}
                   path: |
-                      ${{ env.ARTIFACT_NAME }}
+                      ${{ env.ARTIFACT_PATH }}
                       /tmp/docker-compose.yml
                       /tmp/start.sh
     pull_to_run:
@@ -64,7 +64,7 @@ jobs:
               uses: garygrossgarten/github-action-scp@release
               with:
                   local: ./
-                  remote: ${{ env.BASE_PATH }}
+                  remote: /tmp
                   host: ${{ secrets.HOST }}
                   username: ${{ secrets.USER }}
                   privateKey: ${{ secrets.SSH_KEY }}
@@ -76,5 +76,6 @@ jobs:
                   username: ${{ secrets.USER }}
                   privateKey: ${{ secrets.SSH_KEY }}
                   command: |
-                      sudo chmod +x ${{ env.BASE_PATH }}/start.sh
-                      sudo ${{ env.BASE_PATH }}/start.sh ${{ env.BASE_PATH }}/${{ env.ARTIFACT_NAME }}
+                      mv /tmp/docker-compose.yml /tmp/start.sh ~/
+                      chmod +x ~/start.sh
+                      sudo ~/start.sh ${{ env.ARTIFACT_PATH }}
