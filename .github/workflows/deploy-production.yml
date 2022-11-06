@@ -8,9 +8,10 @@ on:
         tags:
             - v*
 env:
-    ARTIFACT_PATH: /home/artifact.tar
+    ARTIFACT_NAME: artifact.tar
     BOX_NAME: kys-service
     BOX_URL: kaiyuanshe/kys-service
+    BASE_PATH: /home/${{ secrets.USER }}
 
 jobs:
     push_to_registries:
@@ -36,19 +37,19 @@ jobs:
                   context: .
                   platforms: linux/amd64
                   tags: ${{ env.BOX_URL }}:latest
-                  outputs: type=docker,dest=${{ env.ARTIFACT_PATH }}
+                  outputs: type=docker,dest=/tmp/${{ env.ARTIFACT_NAME }}
 
             - name: Pick Docker Compose
-              run: mv ./docker-compose.yml ./start.sh /home
+              run: mv ./docker-compose.yml ./start.sh /tmp
 
             - name: Save Image
               uses: actions/upload-artifact@v3
               with:
                   name: ${{ env.BOX_NAME }}
                   path: |
-                      ${{ env.ARTIFACT_PATH }}
-                      /home/docker-compose.yml
-                      /home/start.sh
+                      ${{ env.ARTIFACT_NAME }}
+                      /tmp/docker-compose.yml
+                      /tmp/start.sh
     pull_to_run:
         name: Pull Docker image to run
         needs: push_to_registries
@@ -63,7 +64,7 @@ jobs:
               uses: garygrossgarten/github-action-scp@release
               with:
                   local: ./
-                  remote: /home
+                  remote: ${{ env.BASE_PATH }}
                   host: ${{ secrets.HOST }}
                   username: ${{ secrets.USER }}
                   privateKey: ${{ secrets.SSH_KEY }}
@@ -75,5 +76,5 @@ jobs:
                   username: ${{ secrets.USER }}
                   privateKey: ${{ secrets.SSH_KEY }}
                   command: |
-                      sudo chmod +x /home/start.sh
-                      sudo /home/start.sh ${{ env.ARTIFACT_PATH }}
+                      sudo chmod +x ${{ env.BASE_PATH }}/start.sh
+                      sudo ${{ env.BASE_PATH }}/start.sh ${{ env.BASE_PATH }}/${{ env.ARTIFACT_NAME }}
