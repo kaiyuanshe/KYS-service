@@ -1,7 +1,14 @@
 import { fromBuffer } from 'file-type';
 import { BlobServiceClient } from '@azure/storage-blob';
+import { Lark } from 'lark-ts-sdk';
 
-export const { AZURE_BLOB_CONNECTION } = process.env;
+export const { AZURE_BLOB_CONNECTION, LARK_APP_ID, LARK_APP_SECRET } =
+    process.env;
+
+export const lark = new Lark({
+    appId: LARK_APP_ID,
+    appSecret: LARK_APP_SECRET
+});
 
 export const parseBlobConnection = (raw: string) =>
     Object.fromEntries(
