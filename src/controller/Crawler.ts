@@ -1,14 +1,20 @@
 import { parse } from 'path';
-import { BodyParam, JsonController, Post } from 'routing-controllers';
+import { JsonController, Post, Params, BodyParam } from 'routing-controllers';
 import { ResponseSchema } from 'routing-controllers-openapi';
 import { loadPage, fetchAsset } from 'web-fetch';
 
 import {
     AZURE_BLOB_CONNECTION,
     blobEndPointOf,
-    uploadToAzureBlob
+    uploadToAzureBlob,
+    lark
 } from '../utility';
-import { PageTaskModel } from '../model/Crawler';
+import {
+    PageTaskModel,
+    LarkBaseTableRecordData,
+    LarkBaseTableRecordFileTask,
+    LarkBaseTableRecordFileModel
+} from '../model/Crawler';
 
 const OWSBlobHost = blobEndPointOf(AZURE_BLOB_CONNECTION);
 
@@ -37,5 +43,35 @@ export class CrawlerController {
         return {
             target: new URL(`${scope}.html`, baseURI) + ''
         };
+    }
+
+    @Post('/task/lark/base/:base/:table/:record/file')
+    @ResponseSchema(LarkBaseTableRecordFileModel)
+    async createLarkBaseTableRecordFileTask(
+        @Params()
+        { base: bid, table: tid, record: rid }: LarkBaseTableRecordFileTask
+    ): Promise<LarkBaseTableRecordFileModel> {
+        const base = await lark.getBITable(bid);
+        const table = await base.getTable(tid);
+
+        const { body } = await lark.client.get<LarkBaseTableRecordData>(
+                `${table.baseURI}/records/${rid}`
+            ),
+            files = [];
+
+        for (const value of Object.values(body.data.record.fields))
+            if (value instanceof Array)
+                for (const item of value)
+                    if (typeof item === 'object' && 'file_token' in item) {
+                        const file = Buffer.from(
+                                await lark.downloadFile(item.file_token)
+                            ),
+                            path = `file/${item.name}`;
+
+                        await uploadToAzureBlob(file, path, item.type);
+
+                        files.push(`${OWSBlobHost}/$web/${path}`);
+                    }
+        return { files };
     }
 }

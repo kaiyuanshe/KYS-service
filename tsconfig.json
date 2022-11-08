@@ -6,6 +6,7 @@
         "esModuleInterop": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
+        "skipLibCheck": true,
         "lib": ["ES2017", "DOM", "DOM.Iterable"],
         "outDir": "dist/"
     }
