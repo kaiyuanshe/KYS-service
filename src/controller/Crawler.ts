@@ -1,5 +1,5 @@
 import { parse } from 'path';
-import { JsonController, Post, Params, BodyParam } from 'routing-controllers';
+import { JsonController, Post, Params, Body } from 'routing-controllers';
 import { ResponseSchema } from 'routing-controllers-openapi';
 import { loadPage, fetchAsset } from 'web-fetch';
 
@@ -10,6 +10,7 @@ import {
     lark
 } from '../utility';
 import {
+    PageTask,
     PageTaskModel,
     LarkBaseTableRecordData,
     LarkBaseTableRecordFileTask,
@@ -23,7 +24,7 @@ export class CrawlerController {
     @Post('/task/page')
     @ResponseSchema(PageTaskModel)
     async createPageTask(
-        @BodyParam('source', { required: true }) source: string
+        @Body() { source, rootSelector }: PageTask
     ): Promise<PageTaskModel> {
         const scope = parse(source).name,
             folder = 'article';
@@ -34,6 +35,7 @@ export class CrawlerController {
 
         for await (const { MIME, name, data } of fetchAsset(document, {
             scope,
+            rootSelector,
             baseURI
         })) {
             await uploadToAzureBlob(data, `${folder}/${name}`, MIME);
