@@ -13,8 +13,8 @@ env:
     BOX_URL: kaiyuanshe/kys-service
 
 jobs:
-    push_to_registries:
-        name: Save Docker image to GitHub artifact
+    deploy_docker_image:
+        name: Deploy Docker image
         runs-on: ubuntu-latest
         permissions:
             packages: write
@@ -39,30 +39,14 @@ jobs:
                   outputs: type=docker,dest=${{ env.ARTIFACT_PATH }}
 
             - name: Pick Docker Compose
-              run: mv ./docker-compose.yml ./start.sh /tmp
-
-            - name: Save Image
-              uses: actions/upload-artifact@v3
-              with:
-                  name: ${{ env.BOX_NAME }}
-                  path: |
-                      ${{ env.ARTIFACT_PATH }}
-                      /tmp/docker-compose.yml
-                      /tmp/start.sh
-    pull_to_run:
-        name: Pull Docker image to run
-        needs: push_to_registries
-        runs-on: ubuntu-latest
-        steps:
-            - name: Fetch Image
-              uses: actions/download-artifact@v3
-              with:
-                  name: ${{ env.BOX_NAME }}
+              run: |
+                  mkdir ./build
+                  mv ${{ env.ARTIFACT_PATH }} ./docker-compose.yml ./start.sh ./build
 
             - name: Transport Image
               uses: garygrossgarten/github-action-scp@release
               with:
-                  local: ./
+                  local: ./build
                   remote: /tmp
                   host: ${{ secrets.HOST }}
                   username: ${{ secrets.USER }}

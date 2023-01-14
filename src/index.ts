@@ -1,16 +1,24 @@
 import 'reflect-metadata';
 import 'dotenv/config';
-import Koa from 'koa';
+import Koa, { Context } from 'koa';
 import KoaLogger from 'koa-logger';
 import { useKoaServer } from 'routing-controllers';
 
 import { router, swagger } from './controller';
 
+const { PORT = 8080, WEB_HOOK_TOKEN } = process.env;
+
 const app = new Koa().use(KoaLogger()).use(swagger());
 
-useKoaServer(app, router);
+useKoaServer(app, {
+    ...router,
+    authorizationChecker({ context }) {
+        const [_, token] =
+            (context as Context).get('Authorization')?.split(/\s+/) || [];
 
-const { PORT = 80 } = process.env;
+        return token === WEB_HOOK_TOKEN;
+    }
+});
 
 app.listen(PORT, () => {
     const host = `http://localhost:${PORT}`;

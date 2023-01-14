@@ -1,5 +1,11 @@
 import { parse } from 'path';
-import { JsonController, Post, Params, Body } from 'routing-controllers';
+import {
+    JsonController,
+    Post,
+    Params,
+    Body,
+    Authorized
+} from 'routing-controllers';
 import { ResponseSchema } from 'routing-controllers-openapi';
 import { loadPage, fetchAsset } from 'web-fetch';
 
@@ -22,6 +28,7 @@ const OWSBlobHost = blobEndPointOf(AZURE_BLOB_CONNECTION);
 @JsonController('/crawler')
 export class CrawlerController {
     @Post('/task/page')
+    @Authorized()
     @ResponseSchema(PageTaskModel)
     async createPageTask(
         @Body() { source, rootSelector }: PageTask
@@ -48,6 +55,7 @@ export class CrawlerController {
     }
 
     @Post('/task/lark/base/:base/:table/:record/file')
+    @Authorized()
     @ResponseSchema(LarkBaseTableRecordFileModel)
     async createLarkBaseTableRecordFileTask(
         @Params()
