@@ -13,12 +13,12 @@ import {
     AZURE_BLOB_CONNECTION,
     blobEndPointOf,
     uploadToAzureBlob,
-    lark
+    lark,
+    CommonBiDataTable
 } from '../utility';
 import {
     PageTask,
     PageTaskModel,
-    LarkBaseTableRecordData,
     LarkBaseTableRecordFileTask,
     LarkBaseTableRecordFileModel
 } from '../model/Crawler';
@@ -61,15 +61,14 @@ export class CrawlerController {
         @Params()
         { base: bid, table: tid, record: rid }: LarkBaseTableRecordFileTask
     ): Promise<LarkBaseTableRecordFileModel> {
-        const base = await lark.getBITable(bid);
-        const table = await base.getTable(tid);
+        await lark.getAccessToken();
 
-        const { body } = await lark.client.get<LarkBaseTableRecordData>(
-                `${table.baseURI}/records/${rid}`
-            ),
+        const table = new CommonBiDataTable(bid, tid);
+
+        const fields = await table.getOne(rid),
             files = [];
 
-        for (const value of Object.values(body.data.record.fields))
+        for (const value of Object.values(fields))
             if (value instanceof Array)
                 for (const item of value)
                     if (typeof item === 'object' && 'file_token' in item) {

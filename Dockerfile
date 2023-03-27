@@ -7,7 +7,6 @@ WORKDIR /home/pptruser/app
 
 COPY package.json /home/pptruser/app
 RUN npm i --force
-RUN npm set chrome /usr/bin/google-chrome-stable
 
 COPY . /home/pptruser/app
 RUN npm run build

@@ -1,14 +1,18 @@
 import { fromBuffer } from 'file-type';
 import { BlobServiceClient } from '@azure/storage-blob';
-import { Lark } from 'lark-ts-sdk';
+import { BiDataTable, LarkApp, TableRecordFields } from 'mobx-lark';
 
 export const { AZURE_BLOB_CONNECTION, LARK_APP_ID, LARK_APP_SECRET } =
     process.env;
 
-export const lark = new Lark({
-    appId: LARK_APP_ID,
-    appSecret: LARK_APP_SECRET
+export const lark = new LarkApp({
+    id: LARK_APP_ID,
+    secret: LARK_APP_SECRET
 });
+
+export class CommonBiDataTable extends BiDataTable<TableRecordFields>() {
+    client = lark.client;
+}
 
 export const parseBlobConnection = (raw: string) =>
     Object.fromEntries(
