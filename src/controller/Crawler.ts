@@ -40,6 +40,11 @@ export class CrawlerController {
                 window: { document }
             } = await loadPage(source);
 
+        for (const element of document.querySelectorAll<HTMLElement>(
+            '[style*="visibility"]'
+        ))
+            element.style.visibility = 'visible';
+
         for await (const { MIME, name, data } of fetchAsset(document, {
             scope,
             rootSelector,
