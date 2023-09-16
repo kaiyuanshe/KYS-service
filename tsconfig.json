@@ -6,9 +6,11 @@
         "esModuleInterop": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
+        "declaration": true,
         "importHelpers": true,
         "skipLibCheck": true,
         "lib": ["ES2017", "DOM", "DOM.Iterable"],
         "outDir": "dist/"
-    }
+    },
+    "include": ["src/**/*"]
 }
