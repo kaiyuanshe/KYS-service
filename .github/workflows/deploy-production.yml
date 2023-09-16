@@ -7,6 +7,7 @@ on:
     push:
         tags:
             - v*
+            - type-v*
 env:
     ARTIFACT_PATH: /tmp/artifact.tar
     BOX_NAME: kys-service

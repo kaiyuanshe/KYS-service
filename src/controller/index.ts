@@ -1,3 +1,4 @@
+import type {} from 'koa2-swagger-ui';
 import { createAPI } from 'koagger';
 
 import { CrawlerController } from './Crawler';

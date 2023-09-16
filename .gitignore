@@ -1,5 +1,6 @@
 node_modules/
 dist/
+type/*.d.ts
 .env
 .tmp/
 .vscode/settings.json
