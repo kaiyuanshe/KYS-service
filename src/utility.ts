@@ -2,8 +2,18 @@ import { fromBuffer } from 'file-type';
 import { BlobServiceClient } from '@azure/storage-blob';
 import { BiDataTable, LarkApp, TableRecordFields } from 'mobx-lark';
 
-export const { AZURE_BLOB_CONNECTION, LARK_APP_ID, LARK_APP_SECRET } =
-    process.env;
+export const {
+    NODE_ENV,
+    PORT = 8080,
+    DATABASE_URL,
+    AZURE_BLOB_CONNECTION,
+    WEB_HOOK_TOKEN,
+    AUTHING_APP_SECRET,
+    LARK_APP_ID,
+    LARK_APP_SECRET
+} = process.env;
+
+export const isProduct = NODE_ENV === 'production';
 
 export const lark = new LarkApp({
     id: LARK_APP_ID,

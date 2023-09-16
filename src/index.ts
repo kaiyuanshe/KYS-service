@@ -1,30 +1,51 @@
-import 'reflect-metadata';
 import 'dotenv/config';
+import 'reflect-metadata';
+
 import Koa, { Context } from 'koa';
+import jwt from 'koa-jwt';
 import KoaLogger from 'koa-logger';
 import { useKoaServer } from 'routing-controllers';
 
-import { router, swagger } from './controller';
+import { mocker, router, swagger } from './controller';
+import { SessionController } from './controller/Session';
+import { dataSource } from './model';
+import { AUTHING_APP_SECRET, PORT, WEB_HOOK_TOKEN, isProduct } from './utility';
 
-const { PORT = 8080, WEB_HOOK_TOKEN } = process.env;
+const HOST = `http://localhost:${PORT}`,
+    app = new Koa()
+        .use(KoaLogger())
+        .use(swagger({ exposeSpec: true }))
+        .use(jwt({ secret: AUTHING_APP_SECRET, passthrough: true }));
 
-const app = new Koa().use(KoaLogger()).use(swagger());
+if (!isProduct) app.use(mocker());
 
 useKoaServer(app, {
     ...router,
-    authorizationChecker({ context }) {
+    cors: true,
+    authorizationChecker: async (action, roles) => {
         const [_, token] =
-            (context as Context).get('Authorization')?.split(/\s+/) || [];
+            (action.context as Context).get('Authorization')?.split(/\s+/) ||
+            [];
 
-        return token === WEB_HOOK_TOKEN;
-    }
+        return (
+            token === WEB_HOOK_TOKEN ||
+            !!(await SessionController.getSession(action))
+        );
+    },
+    currentUserChecker: SessionController.getSession
 });
 
-app.listen(PORT, () => {
-    const host = `http://localhost:${PORT}`;
+console.time('Server boot');
 
-    console.log(`
-HTTP server runs at ${host}
-REST API serves at ${host}/docs
-`);
-});
+dataSource.initialize().then(() =>
+    app.listen(PORT, () => {
+        console.log(`
+HTTP served at ${HOST}
+Swagger API served at ${HOST}/docs/
+Swagger API exposed at ${HOST}/docs/spec`);
+
+        if (!isProduct) console.log(`Mock API served at ${HOST}/mock/\n`);
+
+        console.timeEnd('Server boot');
+    })
+);
