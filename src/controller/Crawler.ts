@@ -21,7 +21,7 @@ import {
     PageTaskModel,
     LarkBaseTableRecordFileTask,
     LarkBaseTableRecordFileModel
-} from '../model/Crawler';
+} from '../model';
 
 const OWSBlobHost = blobEndPointOf(AZURE_BLOB_CONNECTION);
 
