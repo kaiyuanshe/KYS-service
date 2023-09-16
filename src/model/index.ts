@@ -3,9 +3,11 @@ import { DataSource } from 'typeorm';
 import { SqliteConnectionOptions } from 'typeorm/driver/sqlite/SqliteConnectionOptions';
 
 import { DATABASE_URL, isProduct } from '../utility';
+import { CheckEvent } from './CheckEvent';
 import { User } from './User';
 
 export * from './Base';
+export * from './CheckEvent';
 export * from './Crawler';
 export * from './User';
 
@@ -18,7 +20,7 @@ const commonOptions: Pick<
     'synchronize' | 'entities' | 'migrations'
 > = {
     synchronize: true,
-    entities: [User],
+    entities: [User, CheckEvent],
     migrations: [`${isProduct ? '.tmp' : 'migration'}/*.ts`]
 };
 

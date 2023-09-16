@@ -64,6 +64,24 @@ pnpm dock
 pnpm docker
 ```
 
+## Releasing
+
+### Deploy Application
+
+```shell
+git checkout master
+git tag v0.6.0  # this version tag comes from ./package.json
+git push origin master --tags
+```
+
+### Publish Type Package
+
+```shell
+git checkout master
+git tag type-v0.6.0  # this version tag comes from ./type/package.json
+git push origin master --tags
+```
+
 [1]: https://kaiyuanshe.cn
 [2]: https://github.com/kaiyuanshe/KYS-service/actions/workflows/deploy-production.yml
 [3]: https://github.com/settings/tokens
