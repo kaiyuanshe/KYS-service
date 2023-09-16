@@ -20,10 +20,10 @@ jobs:
                   node-version: 18
                   registry-url: https://npm.pkg.github.com
                   cache: pnpm
-            - name: Install Dependencies
-              run: cd type/  &&  pnpm i
-
-            - name: Build & Publish
-              run: npm publish
+            - name: Install, Build & Publish
+              run: |
+                  cd type/
+                  pnpm i
+                  npm publish
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
