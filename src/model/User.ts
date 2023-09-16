@@ -1,14 +1,17 @@
+import { Type } from 'class-transformer';
 import {
     IsEnum,
     IsMobilePhone,
     IsOptional,
     IsString,
-    IsUrl
+    IsUrl,
+    ValidateNested
 } from 'class-validator';
 import { JsonWebTokenError, JwtPayload } from 'jsonwebtoken';
-import { Column, Entity } from 'typeorm';
-
 import { ParameterizedContext } from 'koa';
+import { NewData } from 'mobx-restful';
+import { Column, Entity, ManyToOne } from 'typeorm';
+
 import { Base } from './Base';
 
 export enum Gender {
@@ -38,6 +41,21 @@ export class User extends Base {
     @Column({ nullable: true })
     avatar?: string;
 }
+
+export abstract class UserBase extends Base {
+    @Type(() => User)
+    @ValidateNested()
+    @ManyToOne(() => User)
+    createdBy: User;
+
+    @Type(() => User)
+    @ValidateNested()
+    @IsOptional()
+    @ManyToOne(() => User)
+    updatedBy?: User;
+}
+
+export type UserInputData<T> = NewData<Omit<T, keyof UserBase>, UserBase>;
 
 export type AuthingAddress = Partial<
     Record<'country' | 'postal_code' | 'region' | 'formatted', string>

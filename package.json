@@ -1,6 +1,6 @@
 {
     "name": "kys-service",
-    "version": "0.5.0",
+    "version": "0.6.0",
     "license": "AGPL-3.0",
     "author": "shiy2008@gmail.com",
     "description": "RESTful API service of KaiYuanShe",
