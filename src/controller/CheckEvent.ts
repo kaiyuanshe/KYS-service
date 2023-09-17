@@ -2,6 +2,7 @@ import {
     Authorized,
     Body,
     CurrentUser,
+    ForbiddenError,
     Get,
     JsonController,
     Post,
@@ -10,9 +11,9 @@ import {
 import { ResponseSchema } from 'routing-controllers-openapi';
 
 import {
-    BaseFilter,
     CheckEvent,
     CheckEventChunk,
+    CheckEventFilter,
     CheckEventInput,
     User,
     dataSource
@@ -25,7 +26,14 @@ export class CheckEventController {
     @Post()
     @Authorized()
     @ResponseSchema(CheckEvent)
-    createOne(@CurrentUser() createdBy: User, @Body() data: CheckEventInput) {
+    async createOne(
+        @CurrentUser() createdBy: User,
+        @Body() data: CheckEventInput
+    ) {
+        const oldOne = await this.store.find({ where: { createdBy, ...data } });
+
+        if (oldOne) throw new ForbiddenError('No duplicated check');
+
         return this.store.save({ ...data, createdBy });
     }
 
@@ -34,10 +42,11 @@ export class CheckEventController {
     @ResponseSchema(CheckEventChunk)
     async getSessionList(
         @CurrentUser() createdBy: User,
-        @QueryParams() { pageSize, pageIndex }: BaseFilter
+        @QueryParams()
+        { activityId, agendaId, pageSize, pageIndex }: CheckEventFilter
     ) {
         const [list, count] = await this.store.findAndCount({
-            where: { createdBy },
+            where: { createdBy, activityId, agendaId },
             skip: pageSize * (pageIndex - 1),
             take: pageSize
         });

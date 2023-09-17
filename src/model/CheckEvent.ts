@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import { Column, Entity } from 'typeorm';
 
-import { ListChunk } from './Base';
+import { BaseFilter, ListChunk } from './Base';
 import { UserBase, UserInputData } from './User';
 
 @Entity()
@@ -52,6 +52,19 @@ export class CheckEventInput implements UserInputData<CheckEvent> {
 
     @IsString()
     agendaTitle: string;
+}
+
+export class CheckEventFilter
+    extends BaseFilter
+    implements Partial<BaseFilter & CheckEventInput>
+{
+    @IsString()
+    @IsOptional()
+    activityId?: string;
+
+    @IsString()
+    @IsOptional()
+    agendaId?: string;
 }
 
 export class CheckEventChunk implements ListChunk<CheckEvent> {

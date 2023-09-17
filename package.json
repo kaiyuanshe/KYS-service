@@ -1,6 +1,6 @@
 {
     "name": "kys-service",
-    "version": "0.6.0",
+    "version": "0.6.1",
     "license": "AGPL-3.0",
     "author": "shiy2008@gmail.com",
     "description": "RESTful API service of KaiYuanShe",
@@ -78,7 +78,7 @@
         "migration:run": "npm run typeorm -- migration:run",
         "upgrade:dev": "npm run migration:generate -- migration/version  &&  npm run migration:run",
         "upgrade:pro": "cross-env NODE_ENV=production  npm run migration:generate -- .tmp/version  &&  npm run migration:run",
-        "dock": "docker build . -t kys-service:latest",
-        "docker": "docker rm -f kys-service  &&  docker run --name kys-service -p 8080:8080 -d kys-service"
+        "pack-image": "docker build . -t kys-service:latest",
+        "container": "docker rm -f kys-service  &&  docker run --name kys-service -p 8080:8080 -d kys-service"
     }
 }
