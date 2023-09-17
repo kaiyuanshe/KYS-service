@@ -1,6 +1,6 @@
 {
     "name": "@kaiyuanshe/kys-service",
-    "version": "0.6.0",
+    "version": "0.6.1",
     "types": "index.d.ts",
     "dependencies": {
         "@types/jsonwebtoken": "^9.0.3",
