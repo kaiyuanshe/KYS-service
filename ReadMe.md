@@ -17,7 +17,9 @@
 
 ### Production environment
 
-https://service.kaiyuanshe.cn/docs/
+-   Entry: https://service.kaiyuanshe.cn/
+-   Document: https://service.kaiyuanshe.cn/docs/
+-   Schema: https://service.kaiyuanshe.cn/docs/spec/
 
 ### Type package
 

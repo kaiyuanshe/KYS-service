@@ -7,7 +7,11 @@ import {
     Min
 } from 'class-validator';
 import { NewData } from 'mobx-restful';
-import { CreateDateColumn, PrimaryGeneratedColumn } from 'typeorm';
+import {
+    CreateDateColumn,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn
+} from 'typeorm';
 
 export abstract class Base {
     @IsInt()
@@ -20,7 +24,7 @@ export abstract class Base {
 
     @IsDateString()
     @IsOptional()
-    @CreateDateColumn()
+    @UpdateDateColumn()
     updatedAt?: string;
 }
 
