@@ -1,8 +1,7 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
     IsInt,
     IsLatLong,
-    IsMobilePhone,
     IsOptional,
     IsString,
     Min,
@@ -42,15 +41,14 @@ export class CheckEvent extends UserBase {
     agendaTitle: string;
 }
 
-export class CheckEventInput
-    implements Omit<UserInputData<CheckEvent>, 'user'>
-{
+export class CheckEventInput implements UserInputData<CheckEvent> {
     @IsLatLong()
     @IsOptional()
     coordinate?: string;
 
-    @IsMobilePhone()
-    mobilePhone: string;
+    @Type(() => User)
+    @Transform(({ value }) => new User(value))
+    user: User;
 
     @IsString()
     activityId: string;
@@ -69,9 +67,10 @@ export class CheckEventFilter
     extends BaseFilter
     implements Partial<BaseFilter & CheckEventInput>
 {
-    @IsMobilePhone()
+    @Type(() => User)
+    @Transform(({ value }) => new User(value))
     @IsOptional()
-    mobilePhone?: string;
+    user?: User;
 
     @IsString()
     @IsOptional()

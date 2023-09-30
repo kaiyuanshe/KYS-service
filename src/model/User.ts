@@ -23,6 +23,10 @@ export enum Gender {
 
 @Entity()
 export class User extends Base {
+    @IsString()
+    @Column({ unique: true })
+    uuid: string;
+
     @IsMobilePhone()
     @Column({ unique: true })
     mobilePhone: string;

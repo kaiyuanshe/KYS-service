@@ -14,6 +14,10 @@ import {
 } from 'typeorm';
 
 export abstract class Base {
+    constructor(id: number) {
+        this.id = id;
+    }
+
     @IsInt()
     @PrimaryGeneratedColumn()
     id: number;

@@ -1,6 +1,6 @@
 {
     "name": "@kaiyuanshe/kys-service",
-    "version": "0.6.5",
+    "version": "0.6.7",
     "types": "index.d.ts",
     "files": [
         "*.d.ts"
