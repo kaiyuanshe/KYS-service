@@ -30,17 +30,20 @@ export class CheckEventController {
     @ResponseSchema(CheckEvent)
     async createOne(
         @CurrentUser() createdBy: User,
-        @Body() { mobilePhone, ...data }: CheckEventInput
+        @Body() { user, ...data }: CheckEventInput
     ) {
-        const user = await this.userStore.findOne({ where: { mobilePhone } });
+        if (createdBy.id === user.id)
+            throw new ForbiddenError('No self-checking');
 
-        if (!user) throw new BadRequestError('Invalid user: ' + mobilePhone);
+        user = await this.userStore.findOne({ where: user });
 
-        const oldOne = await this.store.findOne({
+        if (!user) throw new BadRequestError('Invalid user: ' + user.id);
+
+        const checked = await this.store.findOne({
             where: { ...data, user: { id: user.id } }
         });
 
-        if (oldOne) throw new ForbiddenError('No duplicated check');
+        if (checked) throw new ForbiddenError('No duplicated check');
 
         return this.store.save({ ...data, createdBy, user });
     }
@@ -50,7 +53,7 @@ export class CheckEventController {
     async getSessionList(
         @QueryParams()
         {
-            mobilePhone,
+            user,
             activityId,
             agendaId,
             pageSize = 10,
@@ -58,11 +61,8 @@ export class CheckEventController {
         }: CheckEventFilter
     ) {
         const [list, count] = await this.store.findAndCount({
-            where: {
-                user: { mobilePhone },
-                activityId,
-                agendaId
-            },
+            where: { user, activityId, agendaId },
+            relations: ['user'],
             skip: pageSize * (pageIndex - 1),
             take: pageSize
         });

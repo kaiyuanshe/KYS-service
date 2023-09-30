@@ -32,7 +32,7 @@ useKoaServer(app, {
             !!(await SessionController.getSession(action))
         );
     },
-    currentUserChecker: SessionController.getSession
+    currentUserChecker: action => SessionController.getSession(action)
 });
 
 console.time('Server boot');
