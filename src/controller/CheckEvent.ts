@@ -1,5 +1,6 @@
 import {
     Authorized,
+    BadRequestError,
     Body,
     CurrentUser,
     ForbiddenError,
@@ -22,31 +23,46 @@ import {
 @JsonController('/event/check')
 export class CheckEventController {
     store = dataSource.getRepository(CheckEvent);
+    userStore = dataSource.getRepository(User);
 
     @Post()
     @Authorized()
     @ResponseSchema(CheckEvent)
     async createOne(
         @CurrentUser() createdBy: User,
-        @Body() data: CheckEventInput
+        @Body() { mobilePhone, ...data }: CheckEventInput
     ) {
-        const oldOne = await this.store.find({ where: { createdBy, ...data } });
+        const user = await this.userStore.findOne({ where: { mobilePhone } });
+
+        if (!user) throw new BadRequestError('Invalid user: ' + mobilePhone);
+
+        const oldOne = await this.store.findOne({
+            where: { ...data, user: { id: user.id } }
+        });
 
         if (oldOne) throw new ForbiddenError('No duplicated check');
 
-        return this.store.save({ ...data, createdBy });
+        return this.store.save({ ...data, createdBy, user });
     }
 
-    @Get('/session')
-    @Authorized()
+    @Get()
     @ResponseSchema(CheckEventChunk)
     async getSessionList(
-        @CurrentUser() createdBy: User,
         @QueryParams()
-        { activityId, agendaId, pageSize, pageIndex }: CheckEventFilter
+        {
+            mobilePhone,
+            activityId,
+            agendaId,
+            pageSize = 10,
+            pageIndex = 1
+        }: CheckEventFilter
     ) {
         const [list, count] = await this.store.findAndCount({
-            where: { createdBy, activityId, agendaId },
+            where: {
+                user: { mobilePhone },
+                activityId,
+                agendaId
+            },
             skip: pageSize * (pageIndex - 1),
             take: pageSize
         });

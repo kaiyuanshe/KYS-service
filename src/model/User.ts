@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import {
     IsEnum,
+    IsJWT,
     IsMobilePhone,
     IsOptional,
     IsString,
@@ -40,6 +41,12 @@ export class User extends Base {
     @IsOptional()
     @Column({ nullable: true })
     avatar?: string;
+
+    @IsJWT()
+    @IsOptional()
+    token?: string;
+
+    iat?: number;
 }
 
 export abstract class UserBase extends Base {

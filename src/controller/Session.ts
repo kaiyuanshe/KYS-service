@@ -47,11 +47,16 @@ export class SessionController {
 
         const { user } = state;
 
-        return !('userpool_id' in user)
-            ? user
-            : dataSource
-                  .getRepository(User)
-                  .findOne({ where: { mobilePhone: user.phone_number } });
+        if (!user) return;
+
+        if ('userpool_id' in user)
+            return dataSource
+                .getRepository(User)
+                .findOne({ where: { mobilePhone: user.phone_number } });
+
+        delete user.iat;
+
+        return user;
     }
 
     @Get()
