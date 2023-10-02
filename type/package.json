@@ -1,6 +1,6 @@
 {
     "name": "@kaiyuanshe/kys-service",
-    "version": "0.6.7",
+    "version": "0.6.8",
     "types": "index.d.ts",
     "files": [
         "*.d.ts"
@@ -8,7 +8,7 @@
     "dependencies": {
         "@types/jsonwebtoken": "^9.0.3",
         "@types/koa": "^2.13.9",
-        "mobx-restful": "^0.6.11"
+        "mobx-restful": "^0.6.12"
     },
     "peerDependencies": {
         "web-fetch": "^1.3.2"

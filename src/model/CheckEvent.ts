@@ -1,4 +1,4 @@
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import {
     IsInt,
     IsLatLong,
@@ -46,9 +46,9 @@ export class CheckEventInput implements UserInputData<CheckEvent> {
     @IsOptional()
     coordinate?: string;
 
-    @Type(() => User)
-    @Transform(({ value }) => new User(value))
-    user: User;
+    @IsInt()
+    @Min(1)
+    user: number;
 
     @IsString()
     activityId: string;
@@ -67,10 +67,10 @@ export class CheckEventFilter
     extends BaseFilter
     implements Partial<BaseFilter & CheckEventInput>
 {
-    @Type(() => User)
-    @Transform(({ value }) => new User(value))
+    @IsInt()
+    @Min(1)
     @IsOptional()
-    user?: User;
+    user?: number;
 
     @IsString()
     @IsOptional()

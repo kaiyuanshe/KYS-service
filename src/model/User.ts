@@ -24,7 +24,7 @@ export enum Gender {
 @Entity()
 export class User extends Base {
     @IsString()
-    @Column({ unique: true })
+    @Column({ nullable: true })
     uuid: string;
 
     @IsMobilePhone()
@@ -66,7 +66,7 @@ export abstract class UserBase extends Base {
     updatedBy?: User;
 }
 
-export type UserInputData<T> = NewData<Omit<T, keyof UserBase>, UserBase>;
+export type UserInputData<T> = NewData<Omit<T, keyof UserBase>, Base>;
 
 export type AuthingAddress = Partial<
     Record<'country' | 'postal_code' | 'region' | 'formatted', string>
