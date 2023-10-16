@@ -1,3 +1,4 @@
+import { TableRecordFields } from 'mobx-lark';
 import { parse } from 'path';
 import {
     JsonController,
@@ -20,7 +21,9 @@ import {
     PageTask,
     PageTaskModel,
     LarkBaseTableRecordFileTask,
-    LarkBaseTableRecordFileModel
+    LarkBaseTableRecordFileModel,
+    LarkBaseTableFileTask,
+    LarkBaseTableFileModel
 } from '../model';
 
 const OWSBlobHost = blobEndPointOf(AZURE_BLOB_CONNECTION);
@@ -59,6 +62,25 @@ export class CrawlerController {
         };
     }
 
+    async *saveFiles(fields: TableRecordFields) {
+        for (const value of Object.values(fields))
+            if (value instanceof Array)
+                for (const item of value)
+                    if (typeof item === 'object' && 'file_token' in item) {
+                        const file = Buffer.from(
+                                await lark.downloadFile(item.file_token)
+                            ),
+                            path = `file/${item.name}`;
+                        const URI = `${OWSBlobHost}/$web/${path}`;
+
+                        await uploadToAzureBlob(file, path, item.type);
+
+                        console.log(`[upload] ${URI}`);
+
+                        yield URI;
+                    }
+    }
+
     @Post('/task/lark/base/:base/:table/:record/file')
     @Authorized()
     @ResponseSchema(LarkBaseTableRecordFileModel)
@@ -71,21 +93,35 @@ export class CrawlerController {
         const table = new CommonBiDataTable(bid, tid);
 
         const fields = await table.getOne(rid),
-            files = [];
-
-        for (const value of Object.values(fields))
-            if (value instanceof Array)
-                for (const item of value)
-                    if (typeof item === 'object' && 'file_token' in item) {
-                        const file = Buffer.from(
-                                await lark.downloadFile(item.file_token)
-                            ),
-                            path = `file/${item.name}`;
-
-                        await uploadToAzureBlob(file, path, item.type);
-
-                        files.push(`${OWSBlobHost}/$web/${path}`);
-                    }
+            files = [
+                ...(await AsyncIterator.from(this.saveFiles(fields)).toArray())
+            ];
         return { files };
+    }
+
+    @Post('/task/lark/base/:base/:table/file')
+    @Authorized()
+    @ResponseSchema(LarkBaseTableFileModel, { isArray: true })
+    async createLarkBaseTableFileTask(
+        @Params()
+        { base: bid, table: tid }: LarkBaseTableFileTask
+    ): Promise<LarkBaseTableFileModel[]> {
+        await lark.getAccessToken();
+
+        const table = new CommonBiDataTable(bid, tid);
+
+        const records = await table.getAll(),
+            list: LarkBaseTableFileModel[] = [];
+
+        for (const fields of records)
+            list.push({
+                id: fields['id'] as string,
+                files: [
+                    ...(await AsyncIterator.from(
+                        this.saveFiles(fields)
+                    ).toArray())
+                ]
+            });
+        return list;
     }
 }

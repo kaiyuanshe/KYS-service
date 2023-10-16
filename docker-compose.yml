@@ -26,4 +26,8 @@ services:
             - 443:443
         networks:
             - kaiyuanshe
+        deploy:
+            restart_policy:
+                condition: on-failure
+                max_attempts: 3
         command: caddy reverse-proxy --from service.kaiyuanshe.cn --to kys-service:8080

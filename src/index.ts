@@ -1,4 +1,6 @@
 import 'dotenv/config';
+import { installIntoGlobal } from 'iterator-helpers-polyfill';
+installIntoGlobal();
 import 'reflect-metadata';
 
 import Koa, { Context } from 'koa';
@@ -22,7 +24,7 @@ if (!isProduct) app.use(mocker());
 useKoaServer(app, {
     ...router,
     cors: true,
-    authorizationChecker: async (action, roles) => {
+    authorizationChecker: async action => {
         const [_, token] =
             (action.context as Context).get('Authorization')?.split(/\s+/) ||
             [];

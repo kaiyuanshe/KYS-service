@@ -15,13 +15,15 @@ export class PageTaskModel {
     target: string;
 }
 
-export class LarkBaseTableRecordFileTask {
+export class LarkBaseTableFileTask {
     @IsString()
     base: string;
 
     @IsString()
     table: string;
+}
 
+export class LarkBaseTableRecordFileTask extends LarkBaseTableFileTask {
     @IsString()
     record: string;
 }
@@ -29,4 +31,9 @@ export class LarkBaseTableRecordFileTask {
 export class LarkBaseTableRecordFileModel {
     @IsString({ each: true })
     files: string[];
+}
+
+export class LarkBaseTableFileModel extends LarkBaseTableRecordFileModel {
+    @IsString()
+    id: string;
 }
