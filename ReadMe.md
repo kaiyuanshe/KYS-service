@@ -26,7 +26,7 @@
 #### Sign in GitHub packages with NPM
 
 1. Generate a [PAT][10] with `read:packages` authorization
-2. Run Sign-in command in your terminal:
+2. Run Sign-in command in your terminal, and use PAT as password:
 
 ```shell
 npm login --scope=@kaiyuanshe --registry=https://npm.pkg.github.com
@@ -37,7 +37,7 @@ npm login --scope=@kaiyuanshe --registry=https://npm.pkg.github.com
 ```shell
 npm i pnpm -g
 
-pnpm i @kaiyuanshe/kys-service
+pnpm i @kaiyuanshe/kys-service -D
 ```
 
 ## Environment variables

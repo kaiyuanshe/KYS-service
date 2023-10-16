@@ -14,22 +14,24 @@ import {
 } from 'typeorm';
 
 export abstract class Base {
-    constructor(id: number) {
-        this.id = id;
+    constructor(id?: number) {
+        if (id) this.id = id;
     }
 
     @IsInt()
+    @IsOptional()
     @PrimaryGeneratedColumn()
     id: number;
 
     @IsDateString()
+    @IsOptional()
     @CreateDateColumn()
     createdAt: string;
 
     @IsDateString()
     @IsOptional()
     @UpdateDateColumn()
-    updatedAt?: string;
+    updatedAt: string;
 }
 
 export type InputData<T> = NewData<Omit<T, keyof Base>, Base>;
