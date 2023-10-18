@@ -1,4 +1,4 @@
-import { TableRecordFields } from 'mobx-lark';
+import { TableCellLink, TableRecordFields } from 'mobx-lark';
 import { parse } from 'path';
 import {
     JsonController,
@@ -111,7 +111,11 @@ export class CrawlerController {
             list.push({
                 id: fields['id'] as string
             });
-            this.savePage({ source: fields['link'] + '', rootSelector });
+
+            this.savePage({
+                source: (fields['link'] as TableCellLink).link,
+                rootSelector
+            });
         }
 
         return list;
