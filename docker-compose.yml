@@ -4,30 +4,27 @@ networks:
     kaiyuanshe:
 
 services:
+    postgres:
+        image: postgres
+        environment:
+            - POSTGRES_PASSWORD=${APP_SECRET}
+        volumes:
+            - database-data:/var/lib/postgresql/data/
+        ports:
+            - 5432:5432
+        networks:
+            - kaiyuanshe
+        restart: always
     kys-service:
+        depends_on:
+            - postgres
         image: kaiyuanshe/kys-service
         environment:
+            - DATABASE_URL=postgres://postgres:${APP_SECRET}@postgres:5432/postgres
             - NODE_ENV=production
             - PORT=8080
         ports:
             - 8080:8080
         networks:
             - kaiyuanshe
-        deploy:
-            restart_policy:
-                condition: on-failure
-                max_attempts: 3
-    caddy:
-        depends_on:
-            - kys-service
-        image: caddy
-        ports:
-            - 80:80
-            - 443:443
-        networks:
-            - kaiyuanshe
-        deploy:
-            restart_policy:
-                condition: on-failure
-                max_attempts: 3
-        command: caddy reverse-proxy --from service.kaiyuanshe.cn --to kys-service:8080
+        restart: always
