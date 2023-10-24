@@ -7,7 +7,7 @@ services:
     postgres:
         image: postgres
         environment:
-            - POSTGRES_PASSWORD=${APP_SECRET}
+            - POSTGRES_PASSWORD=${AUTHING_APP_SECRET}
         volumes:
             - ./data:/var/lib/postgresql/data/
         ports:
@@ -20,7 +20,7 @@ services:
             - postgres
         image: kaiyuanshe/kys-service
         environment:
-            - DATABASE_URL=postgres://postgres:${APP_SECRET}@postgres:5432/postgres
+            - DATABASE_URL=postgres://postgres:${AUTHING_APP_SECRET}@postgres:5432/postgres
             - NODE_ENV=production
             - PORT=8080
         ports:
