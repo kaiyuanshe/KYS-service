@@ -25,7 +25,7 @@
 
 #### Sign in GitHub packages with NPM
 
-1. Generate a [PAT][10] with `read:packages` authorization
+1. Generate a [PAT][10] with `write:packages` authorization
 2. Run Sign-in command in your terminal, and use PAT as password:
 
 ```shell
