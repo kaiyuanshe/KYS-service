@@ -9,6 +9,7 @@ import { User } from './User';
 export * from './Base';
 export * from './CheckEvent';
 export * from './Crawler';
+export * from './KToken';
 export * from './User';
 
 const { ssl, host, port, user, password, database } = isProduct

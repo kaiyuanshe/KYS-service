@@ -4,6 +4,7 @@ import { createAPI } from 'koagger';
 import { isProduct } from '../utility';
 import { CheckEventController } from './CheckEvent';
 import { CrawlerController } from './Crawler';
+import { KTokenController } from './KToken';
 import { SessionController } from './Session';
 import { UserController } from './User';
 
@@ -13,6 +14,7 @@ export const { router, swagger, mocker } = createAPI({
         SessionController,
         UserController,
         CheckEventController,
-        CrawlerController
+        CrawlerController,
+        KTokenController
     ]
 });

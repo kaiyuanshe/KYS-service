@@ -4,6 +4,7 @@
         "module": "CommonJS",
         "moduleResolution": "Node",
         "esModuleInterop": true,
+        "resolveJsonModule": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "declaration": true,
