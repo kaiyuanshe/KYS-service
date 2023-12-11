@@ -15,7 +15,7 @@
     "main": "dist/index.js",
     "dependencies": {
         "@azure/storage-blob": "^12.17.0",
-        "@koa/cors": "^4.0.0",
+        "@koa/cors": "^5.0.0",
         "class-transformer": "^0.5.1",
         "class-validator": "^0.14.0",
         "dotenv": "^16.3.1",

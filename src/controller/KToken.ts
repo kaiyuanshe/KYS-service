@@ -1,4 +1,9 @@
-import { Contract, InfuraProvider, Wallet } from 'ethers';
+import {
+    Contract,
+    ContractTransactionResponse,
+    InfuraProvider,
+    Wallet
+} from 'ethers';
 import {
     BodyParam,
     Get,
@@ -62,9 +67,9 @@ export class KTokenController {
         @Param('address') toAddress: string,
         @BodyParam('amount') amount: number
     ) {
-        const transaction = await this.contract.transfer(toAddress, amount);
-        const receipt = await transaction.wait();
+        const transaction: ContractTransactionResponse =
+            await this.contract.transfer(toAddress, amount);
 
-        return receipt;
+        return transaction.wait();
     }
 }
