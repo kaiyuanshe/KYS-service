@@ -1,13 +1,14 @@
 import { IsOptional, IsString, IsUrl } from 'class-validator';
 import { AssetFetchOption } from 'web-fetch';
 
-export class PageTask implements Pick<AssetFetchOption, 'rootSelector'> {
-    @IsUrl()
-    source: string;
-
+export class PageSelector implements Pick<AssetFetchOption, 'rootSelector'> {
     @IsString()
     @IsOptional()
     rootSelector?: string;
+}
+export class PageTask extends PageSelector {
+    @IsUrl()
+    source: string;
 }
 
 export class PageTaskModel {
@@ -15,7 +16,7 @@ export class PageTaskModel {
     target: string;
 }
 
-export class LarkBaseTableFileTask {
+export class LarkBaseTable {
     @IsString()
     base: string;
 
@@ -23,17 +24,17 @@ export class LarkBaseTableFileTask {
     table: string;
 }
 
-export class LarkBaseTableRecordFileTask extends LarkBaseTableFileTask {
+export class LarkBaseTableRecord extends LarkBaseTable {
     @IsString()
     record: string;
 }
 
-export class LarkBaseTableRecordFileModel {
-    @IsString({ each: true })
-    files: string[];
+export class LarkBaseTableModel {
+    @IsString()
+    id?: string;
 }
 
-export class LarkBaseTableFileModel extends LarkBaseTableRecordFileModel {
-    @IsString()
-    id: string;
+export class LarkBaseTableRecordFileModel extends LarkBaseTableModel {
+    @IsString({ each: true })
+    files: string[];
 }
