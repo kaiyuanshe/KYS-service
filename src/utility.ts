@@ -12,7 +12,10 @@ export const {
     WEB_HOOK_TOKEN,
     AUTHING_APP_SECRET,
     LARK_APP_ID,
-    LARK_APP_SECRET
+    LARK_APP_SECRET,
+    INFURA_API_KEY,
+    SEPOLIA_PVK,
+    SEPOLIA_CONTRACT_ADDRESS
 } = process.env;
 
 export const isProduct = NODE_ENV === 'production';
