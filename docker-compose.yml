@@ -34,7 +34,6 @@ services:
         image: kaiyuanshe/dashpress
         volumes:
             - ./dashpress/app:/app
-            - ./dashpress/.config-data:/.config-data
         ports:
             - 8081:3000
         networks:
