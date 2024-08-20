@@ -28,3 +28,15 @@ services:
         networks:
             - kaiyuanshe
         restart: always
+    dashpress:
+        depends_on:
+            - postgres
+            - kys-service
+        image: luojiyin/dashpress:1.0
+        volumes:
+            - ./dashpress/app:/app
+        ports:
+            - 8081:3000
+        networks:
+            - kaiyuanshe
+        restart: always
