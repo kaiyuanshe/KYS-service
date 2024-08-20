@@ -32,7 +32,7 @@ services:
         depends_on:
             - postgres
             - kys-service
-        image: kaiyuanshe/dashpress
+        image: luojiyin/dashpress:1.0
         volumes:
             - ./dashpress/app:/app
         ports:
