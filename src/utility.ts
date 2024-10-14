@@ -1,8 +1,6 @@
 import { BlobServiceClient } from '@azure/storage-blob';
 import { fromBuffer } from 'file-type';
-import type {} from 'koajax';
 import { BiDataTable, LarkApp, TableRecordFields } from 'mobx-lark';
-import type {} from 'mobx-restful';
 
 export const {
     NODE_ENV,
