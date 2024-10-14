@@ -113,15 +113,12 @@ export class CrawlerController {
         const records = await table.getAll(),
             list: LarkBaseTableFileModel[] = [];
 
-        for (const fields of records)
-            list.push({
-                id: fields['id'] as string,
-                files: [
-                    ...(await AsyncIterator.from(
-                        this.saveFiles(fields)
-                    ).toArray())
-                ]
-            });
+        for (const fields of records) {
+            const files = [
+                ...(await AsyncIterator.from(this.saveFiles(fields)).toArray())
+            ];
+            list.push({ id: fields['id'] as string, files });
+        }
         return list;
     }
 }
