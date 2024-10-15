@@ -1,16 +1,154 @@
-import { Get, JsonController, OnNull, Param } from 'routing-controllers';
+import { createHash } from 'crypto';
+import { JsonWebTokenError, sign } from 'jsonwebtoken';
+import {
+    Authorized,
+    Body,
+    CurrentUser,
+    Delete,
+    ForbiddenError,
+    Get,
+    HttpCode,
+    JsonController,
+    OnNull,
+    OnUndefined,
+    Param,
+    Post,
+    Put,
+    QueryParams
+} from 'routing-controllers';
 import { ResponseSchema } from 'routing-controllers-openapi';
 
-import { User, dataSource } from '../model';
+import {
+    dataSource,
+    JWTAction,
+    Role,
+    SignInData,
+    User,
+    UserFilter,
+    UserListChunk
+} from '../model';
+import { AUTHING_APP_SECRET, searchConditionOf } from '../utility';
+import { ActivityLogController } from './ActivityLog';
+
+const store = dataSource.getRepository(User);
 
 @JsonController('/user')
 export class UserController {
-    store = dataSource.getRepository(User);
+    static encrypt = (raw: string) =>
+        createHash('sha1')
+            .update(AUTHING_APP_SECRET + raw)
+            .digest('hex');
 
-    @Get('/:uuid')
+    static sign = (user: User): User => ({
+        ...user,
+        token: sign({ ...user }, AUTHING_APP_SECRET)
+    });
+
+    static async signUp({ mobilePhone, password }: SignInData) {
+        const sum = await store.count();
+
+        const { password: _, ...user } = await store.save({
+            name: mobilePhone,
+            mobilePhone,
+            password: UserController.encrypt(password),
+            roles: [sum ? Role.Client : Role.Administrator]
+        });
+        await ActivityLogController.logCreate(user, 'User', user.id);
+
+        return user;
+    }
+
+    static getSession({ context: { state } }: JWTAction) {
+        return state instanceof JsonWebTokenError
+            ? console.error(state)
+            : state.user;
+    }
+
+    @Get('/session')
+    @Authorized()
+    @ResponseSchema(User)
+    getSession(@CurrentUser() user: User) {
+        return user;
+    }
+
+    @Post('/session')
+    @HttpCode(201)
+    @ResponseSchema(User)
+    async signIn(@Body() { mobilePhone, password }: SignInData): Promise<User> {
+        const user = await store.findOneBy({
+            mobilePhone,
+            password: UserController.encrypt(password)
+        });
+        if (!user) throw new ForbiddenError();
+
+        return UserController.sign(user);
+    }
+
+    @Post()
+    @HttpCode(201)
+    @ResponseSchema(User)
+    signUp(@Body() data: SignInData) {
+        return UserController.signUp(data);
+    }
+
+    @Put('/:id')
+    @Authorized()
+    @ResponseSchema(User)
+    async updateOne(
+        @Param('id') id: number,
+        @CurrentUser() updatedBy: User,
+        @Body() { password, ...data }: User
+    ) {
+        if (
+            !updatedBy.roles.includes(Role.Administrator) &&
+            id !== updatedBy.id
+        )
+            throw new ForbiddenError();
+
+        const saved = await store.save({
+            ...data,
+            password: password && UserController.encrypt(password),
+            id
+        });
+        await ActivityLogController.logUpdate(updatedBy, 'User', id);
+
+        return UserController.sign(saved);
+    }
+
+    @Get('/:id')
     @OnNull(404)
     @ResponseSchema(User)
-    getOne(@Param('uuid') uuid: string) {
-        return this.store.findOne({ where: { uuid } });
+    getOne(@Param('id') id: number) {
+        return store.findOne({ where: { id } });
+    }
+
+    @Delete('/:id')
+    @Authorized()
+    @OnUndefined(204)
+    async deleteOne(@Param('id') id: number, @CurrentUser() deletedBy: User) {
+        if (deletedBy.roles.includes(Role.Administrator) && id == deletedBy.id)
+            throw new ForbiddenError();
+
+        await store.softDelete(id);
+
+        await ActivityLogController.logDelete(deletedBy, 'User', id);
+    }
+
+    @Get()
+    @ResponseSchema(UserListChunk)
+    async getList(
+        @QueryParams() { gender, keywords, pageSize, pageIndex }: UserFilter
+    ) {
+        const where = searchConditionOf<User>(
+            ['mobilePhone', 'nickName'],
+            keywords,
+            gender && { gender }
+        );
+        const [list, count] = await store.findAndCount({
+            where,
+            skip: pageSize * (pageIndex - 1),
+            take: pageSize
+        });
+        return { list, count };
     }
 }

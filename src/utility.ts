@@ -1,6 +1,9 @@
 import { BlobServiceClient } from '@azure/storage-blob';
 import { fromBuffer } from 'file-type';
 import { BiDataTable, LarkApp, TableRecordFields } from 'mobx-lark';
+import { FindOptionsWhere, ILike } from 'typeorm';
+
+import { Base } from './model';
 
 export const {
     NODE_ENV,
@@ -17,6 +20,15 @@ export const {
 } = process.env;
 
 export const isProduct = NODE_ENV === 'production';
+
+export const searchConditionOf = <T extends Base>(
+    keys: (keyof T)[],
+    keywords = '',
+    filter?: FindOptionsWhere<T>
+) =>
+    keywords
+        ? keys.map(key => ({ [key]: ILike(`%${keywords}%`), ...filter }))
+        : filter;
 
 export const lark = new LarkApp({
     id: LARK_APP_ID,

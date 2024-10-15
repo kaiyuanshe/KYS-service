@@ -1,19 +1,27 @@
-import 'dotenv/config';
+import { config } from 'dotenv';
 import { installIntoGlobal } from 'iterator-helpers-polyfill';
-installIntoGlobal();
 import 'reflect-metadata';
 
-import Koa, { Context } from 'koa';
+installIntoGlobal();
+
+config({ path: [`.env.${process.env.NODE_ENV}.local`, '.env.local', '.env'] });
+
+import Koa from 'koa';
 import jwt from 'koa-jwt';
 import KoaLogger from 'koa-logger';
 import { useKoaServer } from 'routing-controllers';
 
-import { mocker, router, swagger } from './controller';
-import { SessionController } from './controller/Session';
+import {
+    BaseController,
+    controllers,
+    mocker,
+    swagger,
+    UserController
+} from './controller';
 import { dataSource } from './model';
-import { AUTHING_APP_SECRET, PORT, WEB_HOOK_TOKEN, isProduct } from './utility';
+import { AUTHING_APP_SECRET, isProduct, PORT } from './utility';
 
-const HOST = `http://localhost:${PORT}`,
+const HOST = `localhost:${PORT}`,
     app = new Koa()
         .use(KoaLogger())
         .use(swagger({ exposeSpec: true }))
@@ -22,31 +30,17 @@ const HOST = `http://localhost:${PORT}`,
 if (!isProduct) app.use(mocker());
 
 useKoaServer(app, {
-    ...router,
+    controllers,
     cors: true,
-    authorizationChecker: async action => {
-        const [_, token] =
-            (action.context as Context).get('Authorization')?.split(/\s+/) ||
-            [];
-
-        return (
-            token === WEB_HOOK_TOKEN ||
-            !!(await SessionController.getSession(action))
-        );
-    },
-    currentUserChecker: action => SessionController.getSession(action)
+    authorizationChecker: action => !!UserController.getSession(action),
+    currentUserChecker: UserController.getSession
 });
 
 console.time('Server boot');
 
 dataSource.initialize().then(() =>
     app.listen(PORT, () => {
-        console.log(`
-HTTP served at ${HOST}
-Swagger API served at ${HOST}/docs/
-Swagger API exposed at ${HOST}/docs/spec`);
-
-        if (!isProduct) console.log(`Mock API served at ${HOST}/mock/\n`);
+        console.log(BaseController.entryOf(HOST));
 
         console.timeEnd('Server boot');
     })

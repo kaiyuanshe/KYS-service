@@ -1,19 +1,22 @@
 import { Type } from 'class-transformer';
 import {
     IsEnum,
+    IsInt,
     IsJWT,
     IsMobilePhone,
     IsOptional,
     IsString,
+    IsStrongPassword,
     IsUrl,
+    Min,
     ValidateNested
 } from 'class-validator';
-import { JsonWebTokenError, JwtPayload } from 'jsonwebtoken';
+import { JsonWebTokenError } from 'jsonwebtoken';
 import { ParameterizedContext } from 'koa';
 import { NewData } from 'mobx-restful';
 import { Column, Entity, ManyToOne } from 'typeorm';
 
-import { Base } from './Base';
+import { Base, BaseFilter, InputData, ListChunk } from './Base';
 
 export enum Gender {
     Female = 0,
@@ -21,9 +24,16 @@ export enum Gender {
     Other = 2
 }
 
+export enum Role {
+    Administrator,
+    Manager,
+    Client
+}
+
 @Entity()
 export class User extends Base {
     @IsString()
+    @IsOptional()
     @Column({ nullable: true })
     uuid: string;
 
@@ -46,6 +56,16 @@ export class User extends Base {
     @Column({ nullable: true })
     avatar?: string;
 
+    @IsStrongPassword()
+    @IsOptional()
+    @Column({ nullable: true, select: false })
+    password?: string;
+
+    @IsEnum(Role, { each: true })
+    @IsOptional()
+    @Column('simple-json')
+    roles: Role[];
+
     @IsJWT()
     @IsOptional()
     token?: string;
@@ -53,9 +73,34 @@ export class User extends Base {
     iat?: number;
 }
 
+export class UserFilter extends BaseFilter implements Partial<InputData<User>> {
+    @IsMobilePhone()
+    @IsOptional()
+    mobilePhone?: string;
+
+    @IsString()
+    @IsOptional()
+    nickName?: string;
+
+    @IsEnum(Gender)
+    @IsOptional()
+    gender?: Gender;
+}
+
+export class UserListChunk implements ListChunk<User> {
+    @IsInt()
+    @Min(0)
+    count: number;
+
+    @Type(() => User)
+    @ValidateNested({ each: true })
+    list: User[];
+}
+
 export abstract class UserBase extends Base {
     @Type(() => User)
     @ValidateNested()
+    @IsOptional()
     @ManyToOne(() => User)
     createdBy: User;
 
@@ -64,56 +109,49 @@ export abstract class UserBase extends Base {
     @IsOptional()
     @ManyToOne(() => User)
     updatedBy?: User;
+
+    @Type(() => User)
+    @ValidateNested()
+    @IsOptional()
+    @ManyToOne(() => User)
+    deletedBy?: User;
 }
 
 export type UserInputData<T> = NewData<Omit<T, keyof UserBase>, Base>;
 
-export type AuthingAddress = Partial<
-    Record<'country' | 'postal_code' | 'region' | 'formatted', string>
->;
+export class UserBaseFilter
+    extends BaseFilter
+    implements Partial<InputData<UserBase>>
+{
+    @IsInt()
+    @Min(1)
+    @IsOptional()
+    createdBy?: number;
 
-export type AuthingUser = Record<
-    'type' | 'userPoolId' | 'appId' | 'id' | '_id' | 'userId' | 'clientId',
-    string
-> &
-    Partial<
-        Record<'email' | 'phone' | 'username' | 'unionid' | 'openid', string>
-    >;
+    @IsInt()
+    @Min(1)
+    @IsOptional()
+    updatedBy?: number;
+}
 
-export interface AuthingSession
-    extends JwtPayload,
-        Pick<AuthingUser, 'username' | 'unionid'>,
-        Record<'userpool_id' | 'gender' | 'picture', string>,
-        Partial<
-            Record<
-                | 'external_id'
-                | 'email'
-                | 'website'
-                | 'phone_number'
-                | 'name'
-                | 'preferred_username'
-                | 'nickname'
-                | 'family_name'
-                | 'middle_name'
-                | 'given_name'
-                | 'birthdate'
-                | 'locale'
-                | 'zoneinfo',
-                string
-            >
-        > {
-    phone_number_verified: boolean;
-    email_verified: boolean;
+export class SignInData
+    implements Required<Pick<User, 'mobilePhone' | 'password'>>
+{
+    @IsMobilePhone()
+    mobilePhone: string;
 
-    data: AuthingUser;
-    profile?: any;
-    address: AuthingAddress;
+    @IsString()
+    password: string;
+}
 
-    updated_at: Date;
+export class SignUpData
+    extends SignInData
+    implements Required<Pick<User, 'nickName' | 'mobilePhone' | 'password'>>
+{
+    @IsString()
+    nickName: string;
 }
 
 export interface JWTAction {
-    context?: ParameterizedContext<
-        JsonWebTokenError | { user: User | AuthingSession }
-    >;
+    context?: ParameterizedContext<JsonWebTokenError | { user: User }>;
 }

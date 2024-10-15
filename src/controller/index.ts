@@ -5,16 +5,23 @@ import { isProduct } from '../utility';
 import { CheckEventController } from './CheckEvent';
 import { CrawlerController } from './Crawler';
 import { KTokenController } from './KToken';
-import { SessionController } from './Session';
 import { UserController } from './User';
+import { ActivityLogController } from './ActivityLog';
+import { BaseController } from './Base';
 
-export const { router, swagger, mocker } = createAPI({
+export * from './Base';
+export * from './User';
+export * from './ActivityLog';
+
+export const controllers = [
+    UserController,
+    CheckEventController,
+    CrawlerController,
+    KTokenController,
+    ActivityLogController,
+    BaseController
+];
+export const { swagger, mocker, router } = createAPI({
     mock: !isProduct,
-    controllers: [
-        SessionController,
-        UserController,
-        CheckEventController,
-        CrawlerController,
-        KTokenController
-    ]
+    controllers
 });
