@@ -54,11 +54,8 @@ export class UserController {
         return user;
     }
 
-    static getSession({ context: { state } }: JWTAction) {
-        return state instanceof JsonWebTokenError
-            ? console.error(state)
-            : state.user;
-    }
+    static getSession = ({ context: { state } }: JWTAction) =>
+        state instanceof JsonWebTokenError ? console.error(state) : state.user;
 
     @Get('/session')
     @Authorized()
