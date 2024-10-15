@@ -9,7 +9,6 @@ import {
 import { NewData } from 'mobx-restful';
 import {
     CreateDateColumn,
-    DeleteDateColumn,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from 'typeorm';
@@ -33,11 +32,6 @@ export abstract class Base {
     @IsOptional()
     @UpdateDateColumn()
     updatedAt: string;
-
-    @IsDateString()
-    @IsOptional()
-    @DeleteDateColumn({ select: false })
-    deletedAt?: string;
 }
 
 export type InputData<T> = NewData<Omit<T, keyof Base>, Base>;

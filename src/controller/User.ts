@@ -21,7 +21,6 @@ import { ResponseSchema } from 'routing-controllers-openapi';
 import {
     dataSource,
     JWTAction,
-    Role,
     SignInData,
     User,
     UserFilter,
@@ -45,13 +44,10 @@ export class UserController {
     });
 
     static async signUp({ mobilePhone, password }: SignInData) {
-        const sum = await store.count();
-
         const { password: _, ...user } = await store.save({
             name: mobilePhone,
             mobilePhone,
-            password: UserController.encrypt(password),
-            roles: [sum ? Role.Client : Role.Administrator]
+            password: UserController.encrypt(password)
         });
         await ActivityLogController.logCreate(user, 'User', user.id);
 
@@ -99,11 +95,7 @@ export class UserController {
         @CurrentUser() updatedBy: User,
         @Body() { password, ...data }: User
     ) {
-        if (
-            !updatedBy.roles.includes(Role.Administrator) &&
-            id !== updatedBy.id
-        )
-            throw new ForbiddenError();
+        if (id !== updatedBy.id) throw new ForbiddenError();
 
         const saved = await store.save({
             ...data,
@@ -126,12 +118,9 @@ export class UserController {
     @Authorized()
     @OnUndefined(204)
     async deleteOne(@Param('id') id: number, @CurrentUser() deletedBy: User) {
-        if (deletedBy.roles.includes(Role.Administrator) && id == deletedBy.id)
-            throw new ForbiddenError();
+        if (id == deletedBy.id) throw new ForbiddenError();
 
-        await store.softDelete(id);
-
-        await ActivityLogController.logDelete(deletedBy, 'User', id);
+        await store.delete(id);
     }
 
     @Get()

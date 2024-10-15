@@ -24,12 +24,6 @@ export enum Gender {
     Other = 2
 }
 
-export enum Role {
-    Administrator,
-    Manager,
-    Client
-}
-
 @Entity()
 export class User extends Base {
     @IsString()
@@ -60,11 +54,6 @@ export class User extends Base {
     @IsOptional()
     @Column({ nullable: true, select: false })
     password?: string;
-
-    @IsEnum(Role, { each: true })
-    @IsOptional()
-    @Column('simple-json')
-    roles: Role[];
 
     @IsJWT()
     @IsOptional()
@@ -109,12 +98,6 @@ export abstract class UserBase extends Base {
     @IsOptional()
     @ManyToOne(() => User)
     updatedBy?: User;
-
-    @Type(() => User)
-    @ValidateNested()
-    @IsOptional()
-    @ManyToOne(() => User)
-    deletedBy?: User;
 }
 
 export type UserInputData<T> = NewData<Omit<T, keyof UserBase>, Base>;
