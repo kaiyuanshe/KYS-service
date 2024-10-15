@@ -32,6 +32,24 @@ const OWSBlobHost = blobEndPointOf(AZURE_BLOB_CONNECTION);
 
 @JsonController('/crawler')
 export class CrawlerController {
+    @Post('/task/page')
+    @Authorized()
+    @ResponseSchema(PageTaskModel)
+    async createPageTask(
+        @Body() { source, rootSelector }: PageTask
+    ): Promise<PageTaskModel> {
+        console.log('createPageTask', source, rootSelector);
+
+        const { scope, baseURI } = await this.savePage({
+            source,
+            rootSelector
+        });
+
+        return {
+            target: new URL(`${scope}.html`, baseURI) + ''
+        };
+    }
+
     async *saveFiles(fields: TableRecordFields) {
         for (const value of Object.values(fields))
             if (value instanceof Array)
@@ -77,20 +95,22 @@ export class CrawlerController {
         return { scope, baseURI };
     }
 
-    @Post('/task/page')
+    @Post('/task/lark/base/:base/:table/:record/file')
     @Authorized()
-    @ResponseSchema(PageTaskModel)
-    async createPageTask(
-        @Body() { source, rootSelector }: PageTask
-    ): Promise<PageTaskModel> {
-        const { scope, baseURI } = await this.savePage({
-            source,
-            rootSelector
-        });
+    @ResponseSchema(LarkBaseTableRecordFileModel)
+    async createLarkBaseTableRecordFileTask(
+        @Params()
+        { base: bid, table: tid, record: rid }: LarkBaseTableRecord
+    ): Promise<LarkBaseTableRecordFileModel> {
+        await lark.getAccessToken();
 
-        return {
-            target: new URL(`${scope}.html`, baseURI) + ''
-        };
+        const table = new CommonBiDataTable(bid, tid);
+
+        const fields = await table.getOne(rid),
+            files = [
+                ...(await AsyncIterator.from(this.saveFiles(fields)).toArray())
+            ];
+        return { files };
     }
 
     @Post('/task/lark/base/:base/:table/page')
@@ -112,31 +132,13 @@ export class CrawlerController {
                 id: fields['id'] as string
             });
 
-            this.savePage({
+            await this.savePage({
                 source: (fields['link'] as TableCellLink).link,
                 rootSelector
             });
         }
 
         return list;
-    }
-
-    @Post('/task/lark/base/:base/:table/:record/file')
-    @Authorized()
-    @ResponseSchema(LarkBaseTableRecordFileModel)
-    async createLarkBaseTableRecordFileTask(
-        @Params()
-        { base: bid, table: tid, record: rid }: LarkBaseTableRecord
-    ): Promise<LarkBaseTableRecordFileModel> {
-        await lark.getAccessToken();
-
-        const table = new CommonBiDataTable(bid, tid);
-
-        const fields = await table.getOne(rid),
-            files = [
-                ...(await AsyncIterator.from(this.saveFiles(fields)).toArray())
-            ];
-        return { files };
     }
 
     @Post('/task/lark/base/:base/:table/file')
