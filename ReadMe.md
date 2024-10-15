@@ -47,7 +47,7 @@ pnpm i @kaiyuanshe/kys-service -D
 |     `DATABASE_URL`      |    [PostgreSQL][11] connection string     |
 | `AZURE_BLOB_CONNECTION` |     [Azure Blob Storage][12] service      |
 |    `WEB_HOOK_TOKEN`     | `Authorization` token of Custom Web hooks |
-|  `AUTHING_APP_SECRET`   |         encrypt Password & Token          |
+|      `APP_SECRET`       |         encrypt Password & Token          |
 |      `LARK_APP_ID`      |         App ID of [Lark API][13]          |
 |    `LARK_APP_SECRET`    |       App Secret of [Lark API][13]        |
 

@@ -1,4 +1,3 @@
-import { createHash } from 'crypto';
 import { JsonWebTokenError, sign } from 'jsonwebtoken';
 import {
     Authorized,
@@ -7,6 +6,7 @@ import {
     Delete,
     ForbiddenError,
     Get,
+    HeaderParam,
     HttpCode,
     JsonController,
     OnNull,
@@ -19,6 +19,7 @@ import {
 import { ResponseSchema } from 'routing-controllers-openapi';
 
 import {
+    CaptchaMeta,
     dataSource,
     JWTAction,
     SignInData,
@@ -26,29 +27,21 @@ import {
     UserFilter,
     UserListChunk
 } from '../model';
-import { AUTHING_APP_SECRET, searchConditionOf } from '../utility';
+import { APP_SECRET, leanClient, searchConditionOf } from '../utility';
 import { ActivityLogController } from './ActivityLog';
 
 const store = dataSource.getRepository(User);
 
 @JsonController('/user')
 export class UserController {
-    static encrypt = (raw: string) =>
-        createHash('sha1')
-            .update(AUTHING_APP_SECRET + raw)
-            .digest('hex');
-
     static sign = (user: User): User => ({
         ...user,
-        token: sign({ ...user }, AUTHING_APP_SECRET)
+        token: sign({ ...user }, APP_SECRET)
     });
 
-    static async signUp({ mobilePhone, password }: SignInData) {
-        const { password: _, ...user } = await store.save({
-            name: mobilePhone,
-            mobilePhone,
-            password: UserController.encrypt(password)
-        });
+    static async signUp({ mobilePhone }: SignInData) {
+        const user = await store.save({ nickName: mobilePhone, mobilePhone });
+
         await ActivityLogController.logCreate(user, 'User', user.id);
 
         return user;
@@ -64,15 +57,53 @@ export class UserController {
         return user;
     }
 
+    @Post('/session/captcha/:code/token')
+    @ResponseSchema(CaptchaMeta)
+    async validateCaptcha(
+        @Param('code') captcha_code: string,
+        @HeaderParam('Authorization') token = ''
+    ) {
+        const { body } = await leanClient.post<{ validate_token: string }>(
+            'verifyCaptcha',
+            { captcha_code, captcha_token: token.split(/\s+/)[1] }
+        );
+        return { token: body.validate_token };
+    }
+
+    @Post('/session/captcha')
+    @ResponseSchema(CaptchaMeta)
+    async createCaptcha() {
+        const { body } =
+            await leanClient.get<Record<`captcha_${'token' | 'url'}`, string>>(
+                'requestCaptcha'
+            );
+        return { token: body.captcha_token, link: body.captcha_url };
+    }
+
+    @Post('/session/:phone/code')
+    @OnUndefined(201)
+    async createSMSCode(
+        @Param('phone') mobilePhoneNumber: string,
+        @HeaderParam('Authorization') token = ''
+    ) {
+        await leanClient.post<{}>('requestSmsCode', {
+            mobilePhoneNumber,
+            validate_token: token.split(/\s+/)[1]
+        });
+    }
+
+    static verifySMSCode = (mobilePhoneNumber: string, code: string) =>
+        leanClient.post<{}>(`verifySmsCode/${code}`, { mobilePhoneNumber });
+
     @Post('/session')
     @HttpCode(201)
     @ResponseSchema(User)
-    async signIn(@Body() { mobilePhone, password }: SignInData): Promise<User> {
-        const user = await store.findOneBy({
-            mobilePhone,
-            password: UserController.encrypt(password)
-        });
-        if (!user) throw new ForbiddenError();
+    async signIn(@Body() { mobilePhone, code }: SignInData): Promise<User> {
+        await UserController.verifySMSCode(mobilePhone, code);
+
+        const user = await store.findOneBy({ mobilePhone });
+
+        if (!user) await UserController.signUp({ mobilePhone, code });
 
         return UserController.sign(user);
     }
@@ -90,15 +121,12 @@ export class UserController {
     async updateOne(
         @Param('id') id: number,
         @CurrentUser() updatedBy: User,
-        @Body() { password, ...data }: User
+        @Body() data: User
     ) {
         if (id !== updatedBy.id) throw new ForbiddenError();
 
-        const saved = await store.save({
-            ...data,
-            password: password && UserController.encrypt(password),
-            id
-        });
+        const saved = await store.save({ ...data, id });
+
         await ActivityLogController.logUpdate(updatedBy, 'User', id);
 
         return UserController.sign(saved);

@@ -1,5 +1,6 @@
 import { BlobServiceClient } from '@azure/storage-blob';
 import { fromBuffer } from 'file-type';
+import { HTTPClient } from 'koajax';
 import { BiDataTable, LarkApp, TableRecordFields } from 'mobx-lark';
 import { FindOptionsWhere, ILike } from 'typeorm';
 
@@ -11,7 +12,10 @@ export const {
     DATABASE_URL,
     AZURE_BLOB_CONNECTION,
     WEB_HOOK_TOKEN,
-    AUTHING_APP_SECRET,
+    APP_SECRET,
+    LEANCLOUD_API_HOST,
+    LEANCLOUD_APP_ID,
+    LEANCLOUD_APP_KEY,
     LARK_APP_ID,
     LARK_APP_SECRET,
     INFURA_API_KEY,
@@ -29,6 +33,18 @@ export const searchConditionOf = <T extends Base>(
     keywords
         ? keys.map(key => ({ [key]: ILike(`%${keywords}%`), ...filter }))
         : filter;
+
+export const leanClient = new HTTPClient({
+    baseURI: `https://${LEANCLOUD_API_HOST}/1.1/`,
+    responseType: 'json'
+}).use(({ request }, next) => {
+    request.headers = {
+        ...request.headers,
+        'X-LC-Id': LEANCLOUD_APP_ID,
+        'X-LC-Key': LEANCLOUD_APP_KEY
+    };
+    return next();
+});
 
 export const lark = new LarkApp({
     id: LARK_APP_ID,

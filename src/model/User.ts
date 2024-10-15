@@ -6,7 +6,6 @@ import {
     IsMobilePhone,
     IsOptional,
     IsString,
-    IsStrongPassword,
     IsUrl,
     Min,
     ValidateNested
@@ -49,11 +48,6 @@ export class User extends Base {
     @IsOptional()
     @Column({ nullable: true })
     avatar?: string;
-
-    @IsStrongPassword()
-    @IsOptional()
-    @Column({ nullable: true, select: false })
-    password?: string;
 
     @IsJWT()
     @IsOptional()
@@ -117,22 +111,21 @@ export class UserBaseFilter
     updatedBy?: number;
 }
 
-export class SignInData
-    implements Required<Pick<User, 'mobilePhone' | 'password'>>
-{
+export class CaptchaMeta {
+    @IsString()
+    token: string;
+
+    @IsUrl()
+    @IsOptional()
+    link?: string;
+}
+
+export class SignInData implements Required<Pick<User, 'mobilePhone'>> {
     @IsMobilePhone()
     mobilePhone: string;
 
     @IsString()
-    password: string;
-}
-
-export class SignUpData
-    extends SignInData
-    implements Required<Pick<User, 'nickName' | 'mobilePhone' | 'password'>>
-{
-    @IsString()
-    nickName: string;
+    code: string;
 }
 
 export interface JWTAction {
