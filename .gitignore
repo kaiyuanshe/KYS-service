@@ -1,7 +1,7 @@
 node_modules/
 dist/
 type/*.d.ts
-.env
+.env*
 .tmp/
 .vscode/settings.json
 *.pem
