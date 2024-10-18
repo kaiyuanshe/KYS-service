@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import {
+    IsEmail,
     IsEnum,
     IsInt,
     IsJWT,
@@ -28,11 +29,16 @@ export class User extends Base {
     @IsString()
     @IsOptional()
     @Column({ nullable: true })
-    uuid: string;
+    uuid?: string;
 
     @IsMobilePhone()
     @Column({ unique: true })
     mobilePhone: string;
+
+    @IsEmail()
+    @IsOptional()
+    @Column({ nullable: true })
+    email?: string;
 
     @IsString()
     @IsOptional()
@@ -52,8 +58,6 @@ export class User extends Base {
     @IsJWT()
     @IsOptional()
     token?: string;
-
-    iat?: number;
 }
 
 export class UserFilter extends BaseFilter implements Partial<InputData<User>> {
@@ -111,13 +115,25 @@ export class UserBaseFilter
     updatedBy?: number;
 }
 
-export class CaptchaMeta {
+export class Captcha {
     @IsString()
     token: string;
 
     @IsUrl()
+    link: string;
+}
+
+export class SMSCodeInput {
+    @IsMobilePhone()
+    mobilePhone: string;
+
+    @IsString()
     @IsOptional()
-    link?: string;
+    captchaToken?: string;
+
+    @IsString()
+    @IsOptional()
+    captchaCode?: string;
 }
 
 export class SignInData implements Required<Pick<User, 'mobilePhone'>> {

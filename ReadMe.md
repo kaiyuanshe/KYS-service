@@ -45,11 +45,16 @@ pnpm i @kaiyuanshe/kys-service -D
 |          Name           |                   Usage                   |
 | :---------------------: | :---------------------------------------: |
 |     `DATABASE_URL`      |    [PostgreSQL][11] connection string     |
-| `AZURE_BLOB_CONNECTION` |     [Azure Blob Storage][12] service      |
-|    `WEB_HOOK_TOKEN`     | `Authorization` token of Custom Web hooks |
 |      `APP_SECRET`       |         encrypt Password & Token          |
-|      `LARK_APP_ID`      |         App ID of [Lark API][13]          |
-|    `LARK_APP_SECRET`    |       App Secret of [Lark API][13]        |
+|    `WEB_HOOK_TOKEN`     | `Authorization` token of Custom Web hooks |
+| `AZURE_BLOB_CONNECTION` |     [Azure Blob Storage][12] service      |
+|  `LEANCLOUD_API_HOST`   |       API domain of [LeanCloud][13]       |
+|   `LEANCLOUD_APP_ID`    |         App ID of [LeanCloud][13]         |
+|   `LEANCLOUD_APP_KEY`   |        App Key of [LeanCloud][13]         |
+|      `LARK_APP_ID`      |         App ID of [Lark API][14]          |
+|    `LARK_APP_SECRET`    |       App Secret of [Lark API][14]        |
+|      `HR_BASE_ID`       |      BI Table ID of HR data in Lark       |
+|    `PERSON_TABLE_ID`    |  BI Data Table ID of Person data in Lark  |
 
 ## Development
 
@@ -66,7 +71,7 @@ pnpm i
 pnpm dev
 ```
 
-or just press <kbd>F5</kbd> key in [VS Code][14].
+or just press <kbd>F5</kbd> key in [VS Code][15].
 
 ### Migration
 
@@ -101,7 +106,7 @@ pnpm container
 
 ```shell
 git checkout master
-git tag v0.6.0  # this version tag comes from ./package.json
+git tag v1.0.0  # this version tag comes from ./package.json
 git push origin master --tags
 ```
 
@@ -109,7 +114,7 @@ git push origin master --tags
 
 ```shell
 git checkout master
-git tag type-v0.6.0  # this version tag comes from ./type/package.json
+git tag type-v1.0.0  # this version tag comes from ./type/package.json
 git push origin master --tags
 ```
 
@@ -125,5 +130,6 @@ git push origin master --tags
 [10]: https://github.com/settings/tokens
 [11]: https://www.postgresql.org/
 [12]: https://azure.microsoft.com/en-us/products/storage/blobs
-[13]: https://open.feishu.cn/
-[14]: https://code.visualstudio.com/
+[13]: https://www.leancloud.cn/
+[14]: https://open.feishu.cn/
+[15]: https://code.visualstudio.com/
