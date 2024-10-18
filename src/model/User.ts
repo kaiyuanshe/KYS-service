@@ -1,12 +1,12 @@
 import { Type } from 'class-transformer';
 import {
+    IsEmail,
     IsEnum,
     IsInt,
     IsJWT,
     IsMobilePhone,
     IsOptional,
     IsString,
-    IsStrongPassword,
     IsUrl,
     Min,
     ValidateNested
@@ -29,11 +29,16 @@ export class User extends Base {
     @IsString()
     @IsOptional()
     @Column({ nullable: true })
-    uuid: string;
+    uuid?: string;
 
     @IsMobilePhone()
     @Column({ unique: true })
     mobilePhone: string;
+
+    @IsEmail()
+    @IsOptional()
+    @Column({ nullable: true })
+    email?: string;
 
     @IsString()
     @IsOptional()
@@ -50,16 +55,9 @@ export class User extends Base {
     @Column({ nullable: true })
     avatar?: string;
 
-    @IsStrongPassword()
-    @IsOptional()
-    @Column({ nullable: true, select: false })
-    password?: string;
-
     @IsJWT()
     @IsOptional()
     token?: string;
-
-    iat?: number;
 }
 
 export class UserFilter extends BaseFilter implements Partial<InputData<User>> {
@@ -117,22 +115,33 @@ export class UserBaseFilter
     updatedBy?: number;
 }
 
-export class SignInData
-    implements Required<Pick<User, 'mobilePhone' | 'password'>>
-{
+export class Captcha {
+    @IsString()
+    token: string;
+
+    @IsUrl()
+    link: string;
+}
+
+export class SMSCodeInput {
     @IsMobilePhone()
     mobilePhone: string;
 
     @IsString()
-    password: string;
+    @IsOptional()
+    captchaToken?: string;
+
+    @IsString()
+    @IsOptional()
+    captchaCode?: string;
 }
 
-export class SignUpData
-    extends SignInData
-    implements Required<Pick<User, 'nickName' | 'mobilePhone' | 'password'>>
-{
+export class SignInData implements Required<Pick<User, 'mobilePhone'>> {
+    @IsMobilePhone()
+    mobilePhone: string;
+
     @IsString()
-    nickName: string;
+    code: string;
 }
 
 export interface JWTAction {

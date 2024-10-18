@@ -1,4 +1,3 @@
-import { createHash } from 'crypto';
 import { JsonWebTokenError, sign } from 'jsonwebtoken';
 import {
     Authorized,
@@ -19,46 +18,62 @@ import {
 import { ResponseSchema } from 'routing-controllers-openapi';
 
 import {
+    Captcha,
     dataSource,
+    Gender,
     JWTAction,
     SignInData,
+    SMSCodeInput,
     User,
     UserFilter,
     UserListChunk
 } from '../model';
-import { AUTHING_APP_SECRET, searchConditionOf } from '../utility';
+import {
+    APP_SECRET,
+    blobURLOf,
+    leanClient,
+    PersonBiDataTable,
+    searchConditionOf
+} from '../utility';
 import { ActivityLogController } from './ActivityLog';
 
 const store = dataSource.getRepository(User);
 
 @JsonController('/user')
 export class UserController {
-    static encrypt = (raw: string) =>
-        createHash('sha1')
-            .update(AUTHING_APP_SECRET + raw)
-            .digest('hex');
-
     static sign = (user: User): User => ({
         ...user,
-        token: sign({ ...user }, AUTHING_APP_SECRET)
+        token: sign({ ...user }, APP_SECRET)
     });
 
-    static async signUp({ mobilePhone, password }: SignInData) {
-        const { password: _, ...user } = await store.save({
-            name: mobilePhone,
+    static async signUp({ mobilePhone }: SignInData) {
+        const [{ name, gender, avatar, email } = {}] =
+                await new PersonBiDataTable().getList({ 手机号: mobilePhone }),
+            existed = await store.findOneBy({ mobilePhone });
+
+        const saved = await store.save({
+            ...existed,
             mobilePhone,
-            password: UserController.encrypt(password)
+            email,
+            nickName: name || existed.nickName || mobilePhone,
+            gender:
+                gender === '女'
+                    ? Gender.Female
+                    : gender === '男'
+                      ? Gender.Male
+                      : Gender.Other,
+            avatar: blobURLOf(avatar)
         });
-        await ActivityLogController.logCreate(user, 'User', user.id);
 
-        return user;
+        if (!existed)
+            await ActivityLogController.logCreate(saved, 'User', saved.id);
+        else await ActivityLogController.logUpdate(saved, 'User', saved.id);
+
+        return saved;
     }
 
-    static getSession({ context: { state } }: JWTAction) {
-        return state instanceof JsonWebTokenError
-            ? console.error(state)
-            : state.user;
-    }
+    static getSession = ({ context: { state } }: JWTAction) =>
+        state instanceof JsonWebTokenError ? console.error(state) : state.user;
 
     @Get('/session')
     @Authorized()
@@ -67,24 +82,52 @@ export class UserController {
         return user;
     }
 
+    @Post('/session/captcha')
+    @ResponseSchema(Captcha)
+    async createCaptcha() {
+        const { body } =
+            await leanClient.get<Record<`captcha_${'token' | 'url'}`, string>>(
+                'requestCaptcha'
+            );
+        return { token: body.captcha_token, link: body.captcha_url };
+    }
+
+    static async verifyCaptcha(captcha_token: string, captcha_code: string) {
+        const { body } = await leanClient.post<{ validate_token: string }>(
+            'verifyCaptcha',
+            { captcha_code, captcha_token }
+        );
+        return { token: body.validate_token };
+    }
+
+    @Post('/session/code')
+    @OnUndefined(201)
+    async createSMSCode(
+        @Body() { captchaToken, captchaCode, mobilePhone }: SMSCodeInput
+    ) {
+        if (captchaToken && captchaCode)
+            var { token } = await UserController.verifyCaptcha(
+                captchaToken,
+                captchaCode
+            );
+        await leanClient.post<{}>('requestSmsCode', {
+            mobilePhoneNumber: mobilePhone,
+            validate_token: token
+        });
+    }
+
+    static verifySMSCode = (mobilePhoneNumber: string, code: string) =>
+        leanClient.post<{}>(`verifySmsCode/${code}`, { mobilePhoneNumber });
+
     @Post('/session')
     @HttpCode(201)
     @ResponseSchema(User)
-    async signIn(@Body() { mobilePhone, password }: SignInData): Promise<User> {
-        const user = await store.findOneBy({
-            mobilePhone,
-            password: UserController.encrypt(password)
-        });
-        if (!user) throw new ForbiddenError();
+    async signIn(@Body() { mobilePhone, code }: SignInData): Promise<User> {
+        await UserController.verifySMSCode(mobilePhone, code);
+
+        const user = await UserController.signUp({ mobilePhone, code });
 
         return UserController.sign(user);
-    }
-
-    @Post()
-    @HttpCode(201)
-    @ResponseSchema(User)
-    signUp(@Body() data: SignInData) {
-        return UserController.signUp(data);
     }
 
     @Put('/:id')
@@ -93,15 +136,12 @@ export class UserController {
     async updateOne(
         @Param('id') id: number,
         @CurrentUser() updatedBy: User,
-        @Body() { password, ...data }: User
+        @Body() data: User
     ) {
         if (id !== updatedBy.id) throw new ForbiddenError();
 
-        const saved = await store.save({
-            ...data,
-            password: password && UserController.encrypt(password),
-            id
-        });
+        const saved = await store.save({ ...data, id });
+
         await ActivityLogController.logUpdate(updatedBy, 'User', id);
 
         return UserController.sign(saved);

@@ -11,8 +11,7 @@ import { ResponseSchema } from 'routing-controllers-openapi';
 import { loadPage, fetchAsset } from 'web-fetch';
 
 import {
-    AZURE_BLOB_CONNECTION,
-    blobEndPointOf,
+    OWSBlobRoot,
     uploadToAzureBlob,
     lark,
     CommonBiDataTable
@@ -26,8 +25,6 @@ import {
     LarkBaseTableFileModel
 } from '../model';
 
-const OWSBlobHost = blobEndPointOf(AZURE_BLOB_CONNECTION);
-
 @JsonController('/crawler')
 export class CrawlerController {
     @Post('/task/page')
@@ -38,7 +35,7 @@ export class CrawlerController {
     ): Promise<PageTaskModel> {
         const scope = parse(source).name,
             folder = 'article';
-        const baseURI = `${OWSBlobHost}/$web/${folder}/`,
+        const baseURI = `${OWSBlobRoot}/${folder}/`,
             {
                 window: { document }
             } = await loadPage(source);
@@ -71,7 +68,7 @@ export class CrawlerController {
                                 await lark.downloadFile(item.file_token)
                             ),
                             path = `file/${item.name}`;
-                        const URI = `${OWSBlobHost}/$web/${path}`;
+                        const URI = `${OWSBlobRoot}/${path}`;
 
                         await uploadToAzureBlob(file, path, item.type);
 
