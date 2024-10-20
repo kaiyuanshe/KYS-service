@@ -16,6 +16,7 @@ import {
     QueryParams
 } from 'routing-controllers';
 import { ResponseSchema } from 'routing-controllers-openapi';
+import { Like } from 'typeorm';
 
 import {
     Captcha,
@@ -31,6 +32,7 @@ import {
 import {
     APP_SECRET,
     blobURLOf,
+    lark,
     leanClient,
     PersonBiDataTable,
     searchConditionOf
@@ -47,15 +49,19 @@ export class UserController {
     });
 
     static async signUp({ mobilePhone }: SignInData) {
+        await lark.getAccessToken();
+
         const [{ name, gender, avatar, email } = {}] =
                 await new PersonBiDataTable().getList({ 手机号: mobilePhone }),
-            existed = await store.findOneBy({ mobilePhone });
+            existed = await store.findOneBy({
+                mobilePhone: Like(`%${mobilePhone}`)
+            });
 
         const saved = await store.save({
             ...existed,
-            mobilePhone,
-            email,
-            nickName: name || existed.nickName || mobilePhone,
+            mobilePhone: existed?.mobilePhone || mobilePhone,
+            email: email?.text,
+            nickName: name || existed?.nickName || mobilePhone,
             gender:
                 gender === '女'
                     ? Gender.Female
@@ -100,7 +106,7 @@ export class UserController {
         return { token: body.validate_token };
     }
 
-    @Post('/session/code')
+    @Post('/session/SMS-code')
     @OnUndefined(201)
     async createSMSCode(
         @Body() { captchaToken, captchaCode, mobilePhone }: SMSCodeInput

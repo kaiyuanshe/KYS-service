@@ -5,6 +5,7 @@ import {
     BiDataQueryOptions,
     BiDataTable,
     LarkApp,
+    TableCellLink,
     TableCellValue,
     TableRecordFields
 } from 'mobx-lark';
@@ -74,8 +75,8 @@ export class CommonBiDataTable extends BiDataTable<TableRecordFields>() {
     client = lark.client;
 }
 
-export interface Person
-    extends Record<'name' | 'gender' | 'email' | '手机号', string> {
+export interface Person extends Record<'name' | 'gender' | '手机号', string> {
+    email: TableCellLink;
     avatar: TableCellValue;
 }
 
@@ -92,9 +93,9 @@ export const blobURLOf = (value: TableCellValue) =>
     value instanceof Array
         ? typeof value[0] === 'object' &&
           ('file_token' in value[0] || 'attachmentToken' in value[0])
-            ? `${OWSBlobRoot}/${value[0].name}`
+            ? `${OWSBlobRoot}/file/${value[0].name}`
             : ''
-        : value + '';
+        : value?.toString();
 
 export const parseBlobConnection = (raw: string) =>
     Object.fromEntries(
