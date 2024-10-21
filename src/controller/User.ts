@@ -1,4 +1,5 @@
 import { JsonWebTokenError, sign } from 'jsonwebtoken';
+import { Context } from 'koa';
 import {
     Authorized,
     Body,
@@ -35,7 +36,8 @@ import {
     lark,
     leanClient,
     PersonBiDataTable,
-    searchConditionOf
+    searchConditionOf,
+    WEB_HOOK_TOKEN
 } from '../utility';
 import { ActivityLogController } from './ActivityLog';
 
@@ -78,8 +80,18 @@ export class UserController {
         return saved;
     }
 
-    static getSession = ({ context: { state } }: JWTAction) =>
-        state instanceof JsonWebTokenError ? console.error(state) : state.user;
+    static getSession({ context }: JWTAction) {
+        const [_, token] =
+            (context as Context).get('Authorization')?.split(/\s+/) || [];
+
+        if (token === WEB_HOOK_TOKEN) return new User(0);
+
+        const { state } = context;
+
+        return state instanceof JsonWebTokenError
+            ? console.error(state)
+            : state.user;
+    }
 
     @Get('/session')
     @Authorized()
