@@ -8,7 +8,7 @@ on:
         tags:
             - v*
 env:
-    ARTIFACT_PATH: /tmp/artifact.tar
+    ARTIFACT_PATH: artifact.tar
     BOX_NAME: ${{ github.event.repository.name }}
     BOX_URL: ${{ github.repository }}
     HOST: ${{ secrets.HOST }}

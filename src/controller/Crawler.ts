@@ -12,8 +12,7 @@ import { ResponseSchema } from 'routing-controllers-openapi';
 import { loadPage, fetchAsset } from 'web-fetch';
 
 import {
-    AZURE_BLOB_CONNECTION,
-    blobEndPointOf,
+    OWSBlobRoot,
     uploadToAzureBlob,
     lark,
     CommonBiDataTable
@@ -28,8 +27,6 @@ import {
     PageSelector
 } from '../model';
 
-const OWSBlobHost = blobEndPointOf(AZURE_BLOB_CONNECTION);
-
 @JsonController('/crawler')
 export class CrawlerController {
     @Post('/task/page')
@@ -38,7 +35,17 @@ export class CrawlerController {
     async createPageTask(
         @Body() { source, rootSelector }: PageTask
     ): Promise<PageTaskModel> {
-        console.log('createPageTask', source, rootSelector);
+        const scope = parse(source).name,
+            folder = 'article';
+        const baseURI = `${OWSBlobRoot}/${folder}/`,
+            {
+                window: { document }
+            } = await loadPage(source);
+
+        for (const element of document.querySelectorAll<HTMLElement>(
+            '[style*="visibility"]'
+        ))
+            element.style.visibility = 'visible';
 
         const { scope, baseURI } = await this.savePage({
             source,
@@ -59,7 +66,7 @@ export class CrawlerController {
                                 await lark.downloadFile(item.file_token)
                             ),
                             path = `file/${item.name}`;
-                        const URI = `${OWSBlobHost}/$web/${path}`;
+                        const URI = `${OWSBlobRoot}/${path}`;
 
                         await uploadToAzureBlob(file, path, item.type);
 

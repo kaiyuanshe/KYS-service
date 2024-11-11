@@ -1,19 +1,22 @@
 import { Type } from 'class-transformer';
 import {
+    IsEmail,
     IsEnum,
+    IsInt,
     IsJWT,
     IsMobilePhone,
     IsOptional,
     IsString,
     IsUrl,
+    Min,
     ValidateNested
 } from 'class-validator';
-import { JsonWebTokenError, JwtPayload } from 'jsonwebtoken';
+import { JsonWebTokenError } from 'jsonwebtoken';
 import { ParameterizedContext } from 'koa';
 import { NewData } from 'mobx-restful';
 import { Column, Entity, ManyToOne } from 'typeorm';
 
-import { Base } from './Base';
+import { Base, BaseFilter, InputData, ListChunk } from './Base';
 
 export enum Gender {
     Female = 0,
@@ -24,12 +27,18 @@ export enum Gender {
 @Entity()
 export class User extends Base {
     @IsString()
+    @IsOptional()
     @Column({ nullable: true })
-    uuid: string;
+    uuid?: string;
 
     @IsMobilePhone()
     @Column({ unique: true })
     mobilePhone: string;
+
+    @IsEmail()
+    @IsOptional()
+    @Column({ nullable: true })
+    email?: string;
 
     @IsString()
     @IsOptional()
@@ -49,13 +58,36 @@ export class User extends Base {
     @IsJWT()
     @IsOptional()
     token?: string;
+}
 
-    iat?: number;
+export class UserFilter extends BaseFilter implements Partial<InputData<User>> {
+    @IsMobilePhone()
+    @IsOptional()
+    mobilePhone?: string;
+
+    @IsString()
+    @IsOptional()
+    nickName?: string;
+
+    @IsEnum(Gender)
+    @IsOptional()
+    gender?: Gender;
+}
+
+export class UserListChunk implements ListChunk<User> {
+    @IsInt()
+    @Min(0)
+    count: number;
+
+    @Type(() => User)
+    @ValidateNested({ each: true })
+    list: User[];
 }
 
 export abstract class UserBase extends Base {
     @Type(() => User)
     @ValidateNested()
+    @IsOptional()
     @ManyToOne(() => User)
     createdBy: User;
 
@@ -68,52 +100,50 @@ export abstract class UserBase extends Base {
 
 export type UserInputData<T> = NewData<Omit<T, keyof UserBase>, Base>;
 
-export type AuthingAddress = Partial<
-    Record<'country' | 'postal_code' | 'region' | 'formatted', string>
->;
+export class UserBaseFilter
+    extends BaseFilter
+    implements Partial<InputData<UserBase>>
+{
+    @IsInt()
+    @Min(1)
+    @IsOptional()
+    createdBy?: number;
 
-export type AuthingUser = Record<
-    'type' | 'userPoolId' | 'appId' | 'id' | '_id' | 'userId' | 'clientId',
-    string
-> &
-    Partial<
-        Record<'email' | 'phone' | 'username' | 'unionid' | 'openid', string>
-    >;
+    @IsInt()
+    @Min(1)
+    @IsOptional()
+    updatedBy?: number;
+}
 
-export interface AuthingSession
-    extends JwtPayload,
-        Pick<AuthingUser, 'username' | 'unionid'>,
-        Record<'userpool_id' | 'gender' | 'picture', string>,
-        Partial<
-            Record<
-                | 'external_id'
-                | 'email'
-                | 'website'
-                | 'phone_number'
-                | 'name'
-                | 'preferred_username'
-                | 'nickname'
-                | 'family_name'
-                | 'middle_name'
-                | 'given_name'
-                | 'birthdate'
-                | 'locale'
-                | 'zoneinfo',
-                string
-            >
-        > {
-    phone_number_verified: boolean;
-    email_verified: boolean;
+export class Captcha {
+    @IsString()
+    token: string;
 
-    data: AuthingUser;
-    profile?: any;
-    address: AuthingAddress;
+    @IsUrl()
+    link: string;
+}
 
-    updated_at: Date;
+export class SMSCodeInput {
+    @IsMobilePhone()
+    mobilePhone: string;
+
+    @IsString()
+    @IsOptional()
+    captchaToken?: string;
+
+    @IsString()
+    @IsOptional()
+    captchaCode?: string;
+}
+
+export class SignInData implements Required<Pick<User, 'mobilePhone'>> {
+    @IsMobilePhone()
+    mobilePhone: string;
+
+    @IsString()
+    code: string;
 }
 
 export interface JWTAction {
-    context?: ParameterizedContext<
-        JsonWebTokenError | { user: User | AuthingSession }
-    >;
+    context?: ParameterizedContext<JsonWebTokenError | { user: User }>;
 }

@@ -19,6 +19,7 @@ import {
     User,
     dataSource
 } from '../model';
+import { ActivityLogController } from './ActivityLog';
 
 @JsonController('/event/check')
 export class CheckEventController {
@@ -44,7 +45,14 @@ export class CheckEventController {
 
         if (checked) throw new ForbiddenError('No duplicated check');
 
-        return this.store.save({ ...data, createdBy, user });
+        const saved = await this.store.save({ ...data, createdBy, user });
+
+        await ActivityLogController.logCreate(
+            createdBy,
+            'CheckEvent',
+            saved.id
+        );
+        return saved;
     }
 
     @Get()
