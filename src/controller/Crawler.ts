@@ -1,3 +1,5 @@
+import type {} from 'iterator-helpers-polyfill';
+
 import { TableCellLink, TableRecordFields } from 'mobx-lark';
 import { parse } from 'path';
 import {
@@ -35,18 +37,6 @@ export class CrawlerController {
     async createPageTask(
         @Body() { source, rootSelector }: PageTask
     ): Promise<PageTaskModel> {
-        const scope = parse(source).name,
-            folder = 'article';
-        const baseURI = `${OWSBlobRoot}/${folder}/`,
-            {
-                window: { document }
-            } = await loadPage(source);
-
-        for (const element of document.querySelectorAll<HTMLElement>(
-            '[style*="visibility"]'
-        ))
-            element.style.visibility = 'visible';
-
         const { scope, baseURI } = await this.savePage({
             source,
             rootSelector
@@ -79,7 +69,7 @@ export class CrawlerController {
     async savePage({ source, rootSelector }: PageTask) {
         const scope = parse(source).name,
             folder = 'article';
-        const baseURI = `${OWSBlobHost}/$web/${folder}/`,
+        const baseURI = `${OWSBlobRoot}/${folder}/`,
             {
                 window: { document }
             } = await loadPage(source);
