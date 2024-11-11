@@ -169,7 +169,7 @@ export class UserController {
     @OnNull(404)
     @ResponseSchema(User)
     getOne(@Param('id') id: number) {
-        return store.findOne({ where: { id } });
+        return store.findOneBy({ id });
     }
 
     @Delete('/:id')
