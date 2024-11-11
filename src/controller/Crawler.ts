@@ -25,12 +25,44 @@ import {
     LarkBaseTableRecord,
     LarkBaseTableRecordFileModel,
     LarkBaseTable,
-    LarkBaseTableModel,
+    LarkBaseTableFileModel,
     PageSelector
 } from '../model';
 
 @JsonController('/crawler')
 export class CrawlerController {
+    async savePage({ source, rootSelector }: PageTask) {
+        const scope = parse(source).name,
+            folder = 'article';
+        const baseURI = `${OWSBlobRoot}/${folder}/`,
+            {
+                window: { document }
+            } = await loadPage(source);
+
+        for (const element of document.querySelectorAll<HTMLElement>(
+            '[style*="visibility"]'
+        ))
+            element.style.visibility = 'visible';
+
+        const files: string[] = [];
+
+        for await (const { MIME, name, data } of fetchAsset(document, {
+            scope,
+            rootSelector,
+            baseURI
+        })) {
+            await uploadToAzureBlob(data, `${folder}/${name}`, MIME);
+
+            const fileURL = `${baseURI}${name}`;
+
+            files.push(fileURL);
+
+            console.log(`[upload] ${fileURL}`);
+        }
+
+        return { scope, baseURI, files };
+    }
+
     @Post('/task/page')
     @Authorized()
     @ResponseSchema(PageTaskModel)
@@ -66,32 +98,6 @@ export class CrawlerController {
                     }
     }
 
-    async savePage({ source, rootSelector }: PageTask) {
-        const scope = parse(source).name,
-            folder = 'article';
-        const baseURI = `${OWSBlobRoot}/${folder}/`,
-            {
-                window: { document }
-            } = await loadPage(source);
-
-        for (const element of document.querySelectorAll<HTMLElement>(
-            '[style*="visibility"]'
-        ))
-            element.style.visibility = 'visible';
-
-        for await (const { MIME, name, data } of fetchAsset(document, {
-            scope,
-            rootSelector,
-            baseURI
-        })) {
-            await uploadToAzureBlob(data, `${folder}/${name}`, MIME);
-
-            console.log(`[upload] ${baseURI}${name}`);
-        }
-
-        return { scope, baseURI };
-    }
-
     @Post('/task/lark/base/:base/:table/:record/file')
     @Authorized()
     @ResponseSchema(LarkBaseTableRecordFileModel)
@@ -112,27 +118,25 @@ export class CrawlerController {
 
     @Post('/task/lark/base/:base/:table/page')
     @Authorized()
-    @ResponseSchema(LarkBaseTableModel, { isArray: true })
+    @ResponseSchema(LarkBaseTableFileModel, { isArray: true })
     async createLarkBaseTablePageTask(
         @Params() { base: bid, table: tid }: LarkBaseTable,
         @QueryParams() { rootSelector = '#page-content' }: PageSelector
-    ): Promise<LarkBaseTableModel[]> {
+    ): Promise<LarkBaseTableFileModel[]> {
         await lark.getAccessToken();
 
         const table = new CommonBiDataTable(bid, tid);
 
         const records = await table.getAll(),
-            list: LarkBaseTableModel[] = [];
+            list: LarkBaseTableFileModel[] = [];
 
         for (const fields of records) {
-            list.push({
-                id: fields['id'] as string
-            });
-
-            await this.savePage({
+            const { files } = await this.savePage({
                 source: (fields['link'] as TableCellLink).link,
                 rootSelector
             });
+
+            list.push({ id: fields['id'] as string, files });
         }
 
         return list;
@@ -140,17 +144,17 @@ export class CrawlerController {
 
     @Post('/task/lark/base/:base/:table/file')
     @Authorized()
-    @ResponseSchema(LarkBaseTableRecordFileModel, { isArray: true })
+    @ResponseSchema(LarkBaseTableFileModel, { isArray: true })
     async createLarkBaseTableFileTask(
         @Params()
         { base: bid, table: tid }: LarkBaseTable
-    ): Promise<LarkBaseTableRecordFileModel[]> {
+    ): Promise<LarkBaseTableFileModel[]> {
         await lark.getAccessToken();
 
         const table = new CommonBiDataTable(bid, tid);
 
         const records = await table.getAll(),
-            list: LarkBaseTableRecordFileModel[] = [];
+            list: LarkBaseTableFileModel[] = [];
 
         for (const fields of records) {
             const files = [

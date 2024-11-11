@@ -6,6 +6,7 @@ export class PageSelector implements Pick<AssetFetchOption, 'rootSelector'> {
     @IsOptional()
     rootSelector?: string;
 }
+
 export class PageTask extends PageSelector {
     @IsUrl()
     source: string;
@@ -29,12 +30,12 @@ export class LarkBaseTableRecord extends LarkBaseTable {
     record: string;
 }
 
-export class LarkBaseTableModel {
-    @IsString()
-    id?: string;
-}
-
-export class LarkBaseTableRecordFileModel extends LarkBaseTableModel {
+export class LarkBaseTableRecordFileModel {
     @IsString({ each: true })
     files: string[];
+}
+
+export class LarkBaseTableFileModel extends LarkBaseTableRecordFileModel {
+    @IsString()
+    id: string;
 }
