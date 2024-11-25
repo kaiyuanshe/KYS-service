@@ -4,6 +4,7 @@ FROM ghcr.io/puppeteer/puppeteer:latest AS base
 USER root
 RUN apt-get update && \
     apt-get install curl -y --no-install-recommends
+RUN mv ~/.cache/puppeteer/chrome /opt/chromium
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
