@@ -95,32 +95,17 @@ export class CheckEventChunk implements ListChunk<CheckEvent> {
         connection
             .createQueryBuilder()
             .from(CheckEvent, "ce")
-            .leftJoin("ce.user", "user")
-            .groupBy("user.id, ce.activityId,")
-            .select("user.id", "userId")
-            .addSelect("user.mobilePhone", "userMobilePhone")
-            .addSelect("user.nickName", "userNickName")
-            .addSelect("user.email", "userEmail")
-            .addSelect("user.avatar", "userAvatar")
-            .addSelect("ce.activityId", "activityId")
+            .groupBy("ce.user.id, ce.activityId")
+            .select("ce.activityId", "activityId")
+            .addSelect("ce.user.id", "userId")
             .addSelect("ce.activityName", "activityName")
             .addSelect("COUNT(ce.id)", "checkCount"),
 })
 export class UserActivityCheckInSummary {
     @ViewColumn()
+    @IsInt()
+    @Min(1)
     userId: number;
-
-    @ViewColumn()
-    userMobilePhone: string;
-
-    @ViewColumn()
-    userNickName: string;
-
-    @ViewColumn()
-    userEmail: string;
-
-    @ViewColumn()
-    userAvatar: string;
 
     @ViewColumn()
     activityId: string;
@@ -131,15 +116,9 @@ export class UserActivityCheckInSummary {
     @ViewColumn()
     checkCount: number;
 
-    get user(): User {
-        return {
-            id: this.userId,
-            mobilePhone: this.userMobilePhone,
-            nickName: this.userNickName,
-            email: this.userEmail,
-            avatar: this.userAvatar,
-        } as User;
-    }
+    @Type(() => User)
+    @ValidateNested()
+    user: User;
 }
 
 @ViewEntity({

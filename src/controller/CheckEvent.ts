@@ -13,7 +13,10 @@ import {
 import { ResponseSchema } from "routing-controllers-openapi";
 
 import {
+    ActivityAgendaCheckInListChunk,
+    ActivityAgendaCheckInSummary,
     ActivityCheckInListChunk,
+    ActivityCheckInSummary,
     BaseFilter,
     CheckEvent,
     CheckEventChunk,
@@ -22,6 +25,7 @@ import {
     dataSource,
     User,
     UserActivityCheckInListChunk,
+    UserActivityCheckInSummary,
 } from "../model";
 import { ActivityLogController } from "./ActivityLog";
 import { FindOptionsWhere } from "typeorm";
@@ -30,6 +34,13 @@ import { FindOptionsWhere } from "typeorm";
 export class CheckEventController {
     store = dataSource.getRepository(CheckEvent);
     userStore = dataSource.getRepository(User);
+    userActivityCheckInStore = dataSource.getRepository(
+        UserActivityCheckInSummary,
+    );
+    activityAgendaCheckInStore = dataSource.getRepository(
+        ActivityAgendaCheckInSummary,
+    );
+    activityCheckInStore = dataSource.getRepository(ActivityCheckInSummary);
 
     @Post()
     @Authorized()
@@ -38,7 +49,7 @@ export class CheckEventController {
         @CurrentUser() createdBy: User,
         @Body() { user: id, ...data }: CheckEventInput,
     ) {
-        if (createdBy.id === id) throw new ForbiddenError("No self-checking");
+        // if (createdBy.id === id) throw new ForbiddenError("No self-checking");
 
         const user = await this.userStore.findOne({ where: { id } });
 
@@ -86,46 +97,48 @@ export class CheckEventController {
 
     @Get("/user/:id")
     @ResponseSchema(UserActivityCheckInListChunk)
-    getCheckEventList(
+    async getCheckEventList(
         @Param("id") id: number,
-        @QueryParams() filter: BaseFilter,
+        @QueryParams() { pageSize = 10, pageIndex = 1 }: BaseFilter,
     ) {
-        return this.queryList(
-            { user: { id } },
-            filter,
-            ["user"],
-        );
+        const [list, count] = await this.userActivityCheckInStore.findAndCount({
+            where: { userId: id },
+            skip: pageSize * (pageIndex - 1),
+            take: pageSize,
+        });
+
+        for (
+            let i = 0, item: UserActivityCheckInSummary;
+            (item = list[i]);
+            i++
+        ) {
+            item.user = await this.userStore.findOneBy({ id: item.userId });
+        }
+        return { list, count };
     }
 
     @Get("/activity/:id")
-    @ResponseSchema(ActivityCheckInListChunk)
-    getActivityCheckEventList(
+    @ResponseSchema(ActivityAgendaCheckInListChunk)
+    async getActivityCheckEventList(
         @Param("id") id: string,
-        @QueryParams() filter: BaseFilter,
+        @QueryParams() { pageSize = 10, pageIndex = 1 }: BaseFilter,
     ) {
-        return this.queryList({ activityId: id }, filter);
+        const [list, count] = await this.activityAgendaCheckInStore
+            .findAndCount({
+                where: { activityId: id },
+                skip: pageSize * (pageIndex - 1),
+                take: pageSize,
+            });
+        return { list, count };
     }
 
     @Get("/activity")
     @ResponseSchema(ActivityCheckInListChunk)
-    getAgendaCheckEventList(
-        @Param("id") id: string,
-        @QueryParams() filter: BaseFilter,
+    async getAgendaCheckEventList(
+        @QueryParams() { pageSize = 10, pageIndex = 1 }: BaseFilter,
     ) {
-        return this.queryList({ agendaId: id }, filter);
-    }
-
-    async queryList(
-        where: FindOptionsWhere<CheckEvent>,
-        { pageSize, pageIndex, sort }: BaseFilter,
-        relations?: string[],
-    ) {
-        const skip = pageSize * (pageIndex - 1);
-
-        const [list, count] = await this.store.findAndCount({
-            where,
-            relations,
-            skip,
+        const [list, count] = await this.activityCheckInStore.findAndCount({
+            skip: pageSize * (pageIndex - 1),
             take: pageSize,
         });
         return { list, count };
