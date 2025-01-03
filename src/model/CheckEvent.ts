@@ -1,16 +1,17 @@
-import { Type } from 'class-transformer';
+import { Type } from "class-transformer";
 import {
+    IsEnum,
     IsInt,
     IsLatLong,
     IsOptional,
     IsString,
     Min,
-    ValidateNested
-} from 'class-validator';
-import { Column, Entity, ManyToOne } from 'typeorm';
+    ValidateNested,
+} from "class-validator";
+import { Column, Entity, ManyToOne, ViewColumn, ViewEntity } from "typeorm";
 
-import { BaseFilter, ListChunk } from './Base';
-import { User, UserBase, UserInputData } from './User';
+import { BaseFilter, ListChunk } from "./Base";
+import { User, UserBase, UserInputData } from "./User";
 
 @Entity()
 export class CheckEvent extends UserBase {
@@ -63,10 +64,8 @@ export class CheckEventInput implements UserInputData<CheckEvent> {
     agendaTitle: string;
 }
 
-export class CheckEventFilter
-    extends BaseFilter
-    implements Partial<BaseFilter & CheckEventInput>
-{
+export class CheckEventFilter extends BaseFilter
+    implements Partial<BaseFilter & CheckEventInput> {
     @IsInt()
     @Min(1)
     @IsOptional()
@@ -89,4 +88,116 @@ export class CheckEventChunk implements ListChunk<CheckEvent> {
     @Type(() => CheckEvent)
     @ValidateNested({ each: true })
     list: CheckEvent[];
+}
+
+@ViewEntity({
+    expression: (connection) =>
+        connection
+            .createQueryBuilder()
+            .from(CheckEvent, "ce")
+            .groupBy("ce.user, ce.activityId")
+            .select("ce.user", "user")
+            .addSelect("ce.activityId", "activityId")
+            .addSelect("ce.activityName", "activityName")
+            .addSelect("COUNT(ce.id)", "checkCount"),
+})
+export class UserActivityCheckInSummary {
+    @Type(() => User)
+    @ValidateNested()
+    @ViewColumn()
+    user: User;
+
+    @ViewColumn()
+    activityId: string;
+
+    @ViewColumn()
+    activityName: string;
+
+    @ViewColumn()
+    checkCount: number;
+}
+
+@ViewEntity({
+    expression: (connection) =>
+        connection
+            .createQueryBuilder()
+            .from(CheckEvent, "ce")
+            .groupBy("ce.activityId, ce.agendaId")
+            .select("ce.activityId", "activityId")
+            .addSelect("ce.activityName", "activityName")
+            .addSelect("ce.agendaId", "agendaId")
+            .addSelect("ce.agendaTitle", "agendaTitle")
+            .addSelect("COUNT(ce.id)", "checkCount"),
+})
+export class ActivityAgendaCheckInSummary {
+    @ViewColumn()
+    activityId: string;
+
+    @ViewColumn()
+    activityName: string;
+
+    @ViewColumn()
+    agendaId: string;
+
+    @ViewColumn()
+    agendaTitle: string;
+
+    @ViewColumn()
+    checkCount: number;
+}
+
+@ViewEntity({
+    expression: (connection) =>
+        connection
+            .createQueryBuilder()
+            .from(CheckEvent, "ce")
+            .groupBy("ce.activityId")
+            .select("ce.activityId", "activityId")
+            .addSelect("ce.activityName", "activityName")
+            .addSelect("COUNT(ce.id)", "checkCount"),
+})
+export class ActivityCheckInSummary {
+    @IsInt()
+    @Min(1)
+    @ViewColumn()
+    activityId: number;
+
+    @ViewColumn()
+    activityName: string;
+
+    @ViewColumn()
+    checkCount: number;
+}
+
+export class UserActivityCheckInListChunk
+    implements ListChunk<UserActivityCheckInSummary> {
+    @IsInt()
+    @Min(0)
+    count: number;
+
+    @Type(() => UserActivityCheckInSummary)
+    @ValidateNested({ each: true })
+    list: UserActivityCheckInSummary[];
+}
+
+export class ActivityAgendaCheckInListChunk
+    implements ListChunk<ActivityAgendaCheckInSummary> {
+    @IsInt()
+    @Min(0)
+    count: number;
+
+    @Type(() => ActivityAgendaCheckInSummary)
+    @ValidateNested({ each: true })
+    list: ActivityAgendaCheckInSummary[];
+}
+
+export class ActivityCheckInListChunk
+    implements ListChunk<ActivityCheckInSummary> {
+    @IsInt()
+    @Min(0)
+    count: number;
+
+    @Type(() => ActivityCheckInSummary)
+    @ValidateNested({ each: true })
+    list: ActivityCheckInSummary[];
 }

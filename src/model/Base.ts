@@ -1,17 +1,23 @@
-import { Type } from 'class-transformer';
+import { Type } from "class-transformer";
 import {
     IsDateString,
+    IsEnum,
     IsInt,
     IsOptional,
     IsString,
-    Min
-} from 'class-validator';
-import { NewData } from 'mobx-restful';
+    Min,
+} from "class-validator";
+import { NewData } from "mobx-restful";
 import {
     CreateDateColumn,
     PrimaryGeneratedColumn,
-    UpdateDateColumn
-} from 'typeorm';
+    UpdateDateColumn,
+} from "typeorm";
+
+export enum Sort {
+    DESC = "DESC",
+    ASC = "ASC",
+}
 
 export abstract class Base {
     constructor(id?: number) {
@@ -52,6 +58,10 @@ export class BaseFilter {
     @IsString()
     @IsOptional()
     keywords?: string;
+
+    @IsEnum(Sort)
+    @IsOptional()
+    sort?: Sort;
 }
 
 export interface ListChunk<T> {

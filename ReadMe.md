@@ -127,7 +127,7 @@ git push origin master --tags
 [7]: https://typeorm.io/
 [8]: https://swagger.io/
 [9]: https://github.com/anttiviljami/openapi-backend
-[10]: https://github.com/settings/tokens
+[10]: https://github.com/settings/tokens/new?description=KYS-service&scopes=read:packages
 [11]: https://www.postgresql.org/
 [12]: https://azure.microsoft.com/en-us/products/storage/blobs
 [13]: https://www.leancloud.cn/
