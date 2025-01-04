@@ -37,10 +37,10 @@ export class CheckEventController {
     userActivityCheckInStore = dataSource.getRepository(
         UserActivityCheckInSummary
     );
+    activityCheckInStore = dataSource.getRepository(ActivityCheckInSummary);
     activityAgendaCheckInStore = dataSource.getRepository(
         ActivityAgendaCheckInSummary
     );
-    activityCheckInStore = dataSource.getRepository(ActivityCheckInSummary);
 
     @Post()
     @Authorized()
@@ -49,7 +49,7 @@ export class CheckEventController {
         @CurrentUser() createdBy: User,
         @Body() { user: id, ...data }: CheckEventInput
     ) {
-        // if (createdBy.id === id) throw new ForbiddenError("No self-checking");
+        if (createdBy.id === id) throw new ForbiddenError('No self-checking');
 
         const user = await this.userStore.findOne({ where: { id } });
 
@@ -108,13 +108,8 @@ export class CheckEventController {
             take: pageSize
         });
 
-        for (
-            let i = 0, item: UserActivityCheckInSummary;
-            (item = list[i]);
-            i++
-        ) {
+        for (const item of list)
             item.user = await this.userStore.findOneBy({ id: item.userId });
-        }
         return { list, count };
     }
 

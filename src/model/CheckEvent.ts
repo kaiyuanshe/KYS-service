@@ -110,12 +110,16 @@ export class UserActivityCheckInSummary {
     userId: number;
 
     @ViewColumn()
+    @IsString()
     activityId: string;
 
     @ViewColumn()
+    @IsString()
     activityName: string;
 
     @ViewColumn()
+    @IsInt()
+    @Min(0)
     checkCount: number;
 
     @Type(() => User)
@@ -137,18 +141,24 @@ export class UserActivityCheckInSummary {
 })
 export class ActivityAgendaCheckInSummary {
     @ViewColumn()
+    @IsString()
     activityId: string;
 
     @ViewColumn()
+    @IsString()
     activityName: string;
 
     @ViewColumn()
+    @IsString()
     agendaId: string;
 
     @ViewColumn()
+    @IsString()
     agendaTitle: string;
 
     @ViewColumn()
+    @IsInt()
+    @Min(0)
     checkCount: number;
 }
 
@@ -163,15 +173,17 @@ export class ActivityAgendaCheckInSummary {
             .addSelect('COUNT(ce.id)', 'checkCount')
 })
 export class ActivityCheckInSummary {
-    @IsInt()
-    @Min(1)
     @ViewColumn()
-    activityId: number;
+    @IsString()
+    activityId: string;
 
     @ViewColumn()
+    @IsString()
     activityName: string;
 
     @ViewColumn()
+    @IsInt()
+    @Min(0)
     checkCount: number;
 }
 

@@ -58,10 +58,6 @@ export class BaseFilter {
     @IsString()
     @IsOptional()
     keywords?: string;
-
-    @IsEnum(Sort)
-    @IsOptional()
-    sort?: Sort;
 }
 
 export interface ListChunk<T> {
