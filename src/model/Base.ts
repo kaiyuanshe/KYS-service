@@ -1,22 +1,22 @@
-import { Type } from "class-transformer";
+import { Type } from 'class-transformer';
 import {
     IsDateString,
     IsEnum,
     IsInt,
     IsOptional,
     IsString,
-    Min,
-} from "class-validator";
-import { NewData } from "mobx-restful";
+    Min
+} from 'class-validator';
+import { NewData } from 'mobx-restful';
 import {
     CreateDateColumn,
     PrimaryGeneratedColumn,
-    UpdateDateColumn,
-} from "typeorm";
+    UpdateDateColumn
+} from 'typeorm';
 
 export enum Sort {
-    DESC = "DESC",
-    ASC = "ASC",
+    DESC = 'DESC',
+    ASC = 'ASC'
 }
 
 export abstract class Base {

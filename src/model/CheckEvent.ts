@@ -1,4 +1,4 @@
-import { Type } from "class-transformer";
+import { Type } from 'class-transformer';
 import {
     IsEnum,
     IsInt,
@@ -6,12 +6,12 @@ import {
     IsOptional,
     IsString,
     Min,
-    ValidateNested,
-} from "class-validator";
-import { Column, Entity, ManyToOne, ViewColumn, ViewEntity } from "typeorm";
+    ValidateNested
+} from 'class-validator';
+import { Column, Entity, ManyToOne, ViewColumn, ViewEntity } from 'typeorm';
 
-import { BaseFilter, ListChunk } from "./Base";
-import { User, UserBase, UserInputData } from "./User";
+import { BaseFilter, ListChunk } from './Base';
+import { User, UserBase, UserInputData } from './User';
 
 @Entity()
 export class CheckEvent extends UserBase {
@@ -64,8 +64,10 @@ export class CheckEventInput implements UserInputData<CheckEvent> {
     agendaTitle: string;
 }
 
-export class CheckEventFilter extends BaseFilter
-    implements Partial<BaseFilter & CheckEventInput> {
+export class CheckEventFilter
+    extends BaseFilter
+    implements Partial<BaseFilter & CheckEventInput>
+{
     @IsInt()
     @Min(1)
     @IsOptional()
@@ -91,15 +93,15 @@ export class CheckEventChunk implements ListChunk<CheckEvent> {
 }
 
 @ViewEntity({
-    expression: (connection) =>
+    expression: connection =>
         connection
             .createQueryBuilder()
-            .from(CheckEvent, "ce")
-            .groupBy("ce.user.id, ce.activityId")
-            .select("ce.activityId", "activityId")
-            .addSelect("ce.user.id", "userId")
-            .addSelect("ce.activityName", "activityName")
-            .addSelect("COUNT(ce.id)", "checkCount"),
+            .from(CheckEvent, 'ce')
+            .groupBy('ce.user.id, ce.activityId')
+            .select('ce.activityId', 'activityId')
+            .addSelect('ce.user.id', 'userId')
+            .addSelect('ce.activityName', 'activityName')
+            .addSelect('COUNT(ce.id)', 'checkCount')
 })
 export class UserActivityCheckInSummary {
     @ViewColumn()
@@ -122,16 +124,16 @@ export class UserActivityCheckInSummary {
 }
 
 @ViewEntity({
-    expression: (connection) =>
+    expression: connection =>
         connection
             .createQueryBuilder()
-            .from(CheckEvent, "ce")
-            .groupBy("ce.activityId, ce.agendaId")
-            .select("ce.activityId", "activityId")
-            .addSelect("ce.activityName", "activityName")
-            .addSelect("ce.agendaId", "agendaId")
-            .addSelect("ce.agendaTitle", "agendaTitle")
-            .addSelect("COUNT(ce.id)", "checkCount"),
+            .from(CheckEvent, 'ce')
+            .groupBy('ce.activityId, ce.agendaId')
+            .select('ce.activityId', 'activityId')
+            .addSelect('ce.activityName', 'activityName')
+            .addSelect('ce.agendaId', 'agendaId')
+            .addSelect('ce.agendaTitle', 'agendaTitle')
+            .addSelect('COUNT(ce.id)', 'checkCount')
 })
 export class ActivityAgendaCheckInSummary {
     @ViewColumn()
@@ -151,14 +153,14 @@ export class ActivityAgendaCheckInSummary {
 }
 
 @ViewEntity({
-    expression: (connection) =>
+    expression: connection =>
         connection
             .createQueryBuilder()
-            .from(CheckEvent, "ce")
-            .groupBy("ce.activityId")
-            .select("ce.activityId", "activityId")
-            .addSelect("ce.activityName", "activityName")
-            .addSelect("COUNT(ce.id)", "checkCount"),
+            .from(CheckEvent, 'ce')
+            .groupBy('ce.activityId')
+            .select('ce.activityId', 'activityId')
+            .addSelect('ce.activityName', 'activityName')
+            .addSelect('COUNT(ce.id)', 'checkCount')
 })
 export class ActivityCheckInSummary {
     @IsInt()
@@ -174,7 +176,8 @@ export class ActivityCheckInSummary {
 }
 
 export class UserActivityCheckInListChunk
-    implements ListChunk<UserActivityCheckInSummary> {
+    implements ListChunk<UserActivityCheckInSummary>
+{
     @IsInt()
     @Min(0)
     count: number;
@@ -185,7 +188,8 @@ export class UserActivityCheckInListChunk
 }
 
 export class ActivityAgendaCheckInListChunk
-    implements ListChunk<ActivityAgendaCheckInSummary> {
+    implements ListChunk<ActivityAgendaCheckInSummary>
+{
     @IsInt()
     @Min(0)
     count: number;
@@ -196,7 +200,8 @@ export class ActivityAgendaCheckInListChunk
 }
 
 export class ActivityCheckInListChunk
-    implements ListChunk<ActivityCheckInSummary> {
+    implements ListChunk<ActivityCheckInSummary>
+{
     @IsInt()
     @Min(0)
     count: number;

@@ -1,38 +1,38 @@
-import { Type } from "class-transformer";
+import { Type } from 'class-transformer';
 import {
     IsEnum,
     IsInt,
     IsObject,
     IsOptional,
     Min,
-    ValidateNested,
-} from "class-validator";
-import { Column, Entity, ViewColumn, ViewEntity } from "typeorm";
+    ValidateNested
+} from 'class-validator';
+import { Column, Entity, ViewColumn, ViewEntity } from 'typeorm';
 
-import { Base, BaseFilter, InputData, ListChunk } from "./Base";
-import { CheckEvent } from "./CheckEvent";
-import { User, UserBase } from "./User";
+import { Base, BaseFilter, InputData, ListChunk } from './Base';
+import { CheckEvent } from './CheckEvent';
+import { User, UserBase } from './User';
 
 export enum Operation {
-    Create = "create",
-    Update = "update",
-    Delete = "delete",
+    Create = 'create',
+    Update = 'update',
+    Delete = 'delete'
 }
 
 export const LogableTable = { User, CheckEvent };
 
 const LogableTableEnum = Object.fromEntries(
-    Object.entries(LogableTable).map(([key]) => [key, key]),
+    Object.entries(LogableTable).map(([key]) => [key, key])
 );
 
 @Entity()
 export class ActivityLog extends UserBase {
     @IsEnum(Operation)
-    @Column({ type: "simple-enum", enum: Operation })
+    @Column({ type: 'simple-enum', enum: Operation })
     operation: Operation;
 
     @IsEnum(LogableTableEnum)
-    @Column({ type: "simple-enum", enum: LogableTableEnum })
+    @Column({ type: 'simple-enum', enum: LogableTableEnum })
     tableName: keyof typeof LogableTable;
 
     @IsInt()
@@ -45,8 +45,10 @@ export class ActivityLog extends UserBase {
     record?: Base;
 }
 
-export class ActivityLogFilter extends BaseFilter
-    implements Partial<InputData<ActivityLog>> {
+export class ActivityLogFilter
+    extends BaseFilter
+    implements Partial<InputData<ActivityLog>>
+{
     @IsEnum(Operation)
     @IsOptional()
     operation?: Operation;
@@ -63,13 +65,13 @@ export class ActivityLogListChunk implements ListChunk<ActivityLog> {
 }
 
 @ViewEntity({
-    expression: (connection) =>
+    expression: connection =>
         connection
             .createQueryBuilder()
-            .from(ActivityLog, "al")
-            .groupBy("al.createdBy")
-            .select("al.createdBy.id", "userId")
-            .addSelect("COUNT(al.id)", "score"),
+            .from(ActivityLog, 'al')
+            .groupBy('al.createdBy')
+            .select('al.createdBy.id', 'userId')
+            .addSelect('COUNT(al.id)', 'score')
 })
 export class UserRank {
     @IsInt()
