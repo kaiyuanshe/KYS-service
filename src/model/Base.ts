@@ -1,7 +1,6 @@
 import { Type } from 'class-transformer';
 import {
     IsDateString,
-    IsEnum,
     IsInt,
     IsOptional,
     IsString,
@@ -13,11 +12,6 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from 'typeorm';
-
-export enum Sort {
-    DESC = 'DESC',
-    ASC = 'ASC'
-}
 
 export abstract class Base {
     constructor(id?: number) {
