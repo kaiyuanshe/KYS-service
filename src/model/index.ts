@@ -3,9 +3,14 @@ import { DataSource } from 'typeorm';
 import { SqliteConnectionOptions } from 'typeorm/driver/sqlite/SqliteConnectionOptions';
 
 import { DATABASE_URL, isProduct } from '../utility';
-import { CheckEvent } from './CheckEvent';
+import {
+    ActivityAgendaCheckInSummary,
+    ActivityCheckInSummary,
+    CheckEvent,
+    UserActivityCheckInSummary
+} from './CheckEvent';
 import { User } from './User';
-import { ActivityLog } from './ActivityLog';
+import { ActivityLog, UserRank } from './ActivityLog';
 
 export * from './Base';
 export * from './CheckEvent';
@@ -24,7 +29,15 @@ const commonOptions: Pick<
 > = {
     logging: true,
     synchronize: true,
-    entities: [User, ActivityLog, CheckEvent],
+    entities: [
+        User,
+        UserRank,
+        ActivityLog,
+        CheckEvent,
+        UserActivityCheckInSummary,
+        ActivityAgendaCheckInSummary,
+        ActivityCheckInSummary
+    ],
     migrations: [`${isProduct ? '.tmp' : 'migration'}/*.ts`]
 };
 
