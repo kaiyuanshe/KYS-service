@@ -1,8 +1,5 @@
 import { config } from 'dotenv';
-import { installIntoGlobal } from 'iterator-helpers-polyfill';
 import 'reflect-metadata';
-
-installIntoGlobal();
 
 config({ path: [`.env.${process.env.NODE_ENV}.local`, '.env.local', '.env'] });
 

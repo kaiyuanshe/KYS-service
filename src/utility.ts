@@ -1,13 +1,10 @@
-import { BlobServiceClient } from '@azure/storage-blob';
-import { fromBuffer } from 'file-type';
 import { HTTPClient, HTTPError } from 'koajax';
 import {
     BiDataQueryOptions,
     BiDataTable,
     LarkApp,
     TableCellLink,
-    TableCellValue,
-    TableRecordFields
+    TableCellValue
 } from 'mobx-lark';
 import { HttpError } from 'routing-controllers';
 import { FindOptionsWhere, ILike } from 'typeorm';
@@ -71,10 +68,6 @@ export const lark = new LarkApp({
     secret: LARK_APP_SECRET
 });
 
-export class CommonBiDataTable extends BiDataTable<TableRecordFields>() {
-    client = lark.client;
-}
-
 export interface Person extends Record<'name' | 'gender' | '手机号', string> {
     email: TableCellLink;
     avatar: TableCellValue;
@@ -122,22 +115,3 @@ export function blobEndPointOf(connection: string) {
 export const OWSBlobHost = blobEndPointOf(AZURE_BLOB_CONNECTION);
 export const OWSBlobContainer = '$web';
 export const OWSBlobRoot = `${OWSBlobHost}/${OWSBlobContainer}`;
-
-export async function uploadToAzureBlob(
-    data: Buffer,
-    fileName: string,
-    fileType = 'application/octet-stream',
-    containerName = OWSBlobContainer
-) {
-    const client = BlobServiceClient.fromConnectionString(
-        AZURE_BLOB_CONNECTION
-    );
-    const container = client.getContainerClient(containerName);
-    const file = container.getBlockBlobClient(fileName);
-
-    const { mime } = (await fromBuffer(data)) || {};
-
-    return file.upload(data, data.byteLength, {
-        blobHTTPHeaders: { blobContentType: mime || fileType }
-    });
-}

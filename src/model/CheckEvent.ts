@@ -97,41 +97,6 @@ export class CheckEventChunk implements ListChunk<CheckEvent> {
         connection
             .createQueryBuilder()
             .from(CheckEvent, 'ce')
-            .groupBy('ce.user.id, ce.activityId')
-            .select('ce.activityId', 'activityId')
-            .addSelect('ce.user.id', 'userId')
-            .addSelect('ce.activityName', 'activityName')
-            .addSelect('COUNT(ce.id)', 'checkCount')
-})
-export class UserActivityCheckInSummary {
-    @ViewColumn()
-    @IsInt()
-    @Min(1)
-    userId: number;
-
-    @ViewColumn()
-    @IsString()
-    activityId: string;
-
-    @ViewColumn()
-    @IsString()
-    activityName: string;
-
-    @ViewColumn()
-    @IsInt()
-    @Min(0)
-    checkCount: number;
-
-    @Type(() => User)
-    @ValidateNested()
-    user: User;
-}
-
-@ViewEntity({
-    expression: connection =>
-        connection
-            .createQueryBuilder()
-            .from(CheckEvent, 'ce')
             .groupBy('ce.activityId')
             .select('ce.activityId', 'activityId')
             .addSelect('ce.activityName', 'activityName')
@@ -150,6 +115,28 @@ export class ActivityCheckInSummary {
     @IsInt()
     @Min(0)
     checkCount: number;
+}
+
+@ViewEntity({
+    expression: connection =>
+        connection
+            .createQueryBuilder()
+            .from(CheckEvent, 'ce')
+            .groupBy('ce.user.id, ce.activityId')
+            .select('ce.activityId', 'activityId')
+            .addSelect('ce.user.id', 'userId')
+            .addSelect('ce.activityName', 'activityName')
+            .addSelect('COUNT(ce.id)', 'checkCount')
+})
+export class UserActivityCheckInSummary extends ActivityCheckInSummary {
+    @ViewColumn()
+    @IsInt()
+    @Min(1)
+    userId: number;
+
+    @Type(() => User)
+    @ValidateNested()
+    user: User;
 }
 
 @ViewEntity({
