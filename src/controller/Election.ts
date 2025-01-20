@@ -1,15 +1,16 @@
 import {
     Authorized,
-    Body,
     CurrentUser,
     ForbiddenError,
     JsonController,
+    Param,
     Post
 } from 'routing-controllers';
 import { ResponseSchema } from 'routing-controllers-openapi';
 import { makeSHA } from 'web-utility';
 
 import { dataSource, User, Voter, VoteTicket } from '../model';
+import { lark, MemberBiDataTable } from '../utility';
 import { ActivityLogController } from './ActivityLog';
 
 @JsonController('/election')
@@ -21,21 +22,31 @@ export class ElectionController {
     @ResponseSchema(VoteTicket)
     async createVoteTicket(
         @CurrentUser() createdBy: User,
-        @Body() { electionName }: Voter
+        @Param('electionName') electionName: string
     ): Promise<VoteTicket> {
+        const { id, nickName, mobilePhone, email } = createdBy;
+
         const duplicatedVoter = await this.voterStore.findOneBy({
-            createdBy,
+            createdBy: { id },
             electionName
         });
         if (duplicatedVoter)
             throw new ForbiddenError(
-                `${createdBy.nickName} has already registered for ${electionName}`
+                `${nickName} has already registered for ${electionName} election`
             );
-        const { nickName, mobilePhone, email } = createdBy;
+        await lark.getAccessToken();
 
-        const { id } = await this.voterStore.save({ electionName, createdBy });
+        const [formalMember] = await new MemberBiDataTable().getList({
+            手机号: mobilePhone,
+            formalMember: true
+        });
+        if (!formalMember)
+            throw new ForbiddenError(
+                `${nickName} isn't a formal member who has the right to vote in ${electionName} election`
+            );
+        const saved = await this.voterStore.save({ electionName, createdBy });
 
-        await ActivityLogController.logCreate(createdBy, 'Voter', id);
+        await ActivityLogController.logCreate(createdBy, 'Voter', saved.id);
 
         const meta = [
             nickName,
