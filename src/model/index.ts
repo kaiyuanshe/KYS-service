@@ -11,6 +11,7 @@ import {
 } from './CheckEvent';
 import { User } from './User';
 import { ActivityLog, UserRank } from './ActivityLog';
+import { Voter } from './Election';
 
 export * from './Base';
 export * from './CheckEvent';
@@ -18,6 +19,7 @@ export * from './Crawler';
 export * from './KToken';
 export * from './User';
 export * from './ActivityLog';
+export * from './Election';
 
 const { ssl, host, port, user, password, database } = isProduct
     ? parse(DATABASE_URL)
@@ -36,7 +38,8 @@ const commonOptions: Pick<
         CheckEvent,
         UserActivityCheckInSummary,
         ActivityAgendaCheckInSummary,
-        ActivityCheckInSummary
+        ActivityCheckInSummary,
+        Voter
     ],
     migrations: [`${isProduct ? '.tmp' : 'migration'}/*.ts`]
 };
