@@ -11,7 +11,6 @@ import { makeSHA } from 'web-utility';
 
 import { dataSource, User, Voter, VoteTicket } from '../model';
 import { lark, MemberBiDataTable } from '../utility';
-import { ActivityLogController } from './ActivityLog';
 
 @JsonController('/election')
 export class ElectionController {
@@ -44,9 +43,7 @@ export class ElectionController {
             throw new ForbiddenError(
                 `${nickName} isn't a formal member who has the right to vote in ${electionName} election`
             );
-        const saved = await this.voterStore.save({ electionName, createdBy });
-
-        await ActivityLogController.logCreate(createdBy, 'Voter', saved.id);
+        await this.voterStore.save({ electionName, createdBy });
 
         const meta = [
             nickName,

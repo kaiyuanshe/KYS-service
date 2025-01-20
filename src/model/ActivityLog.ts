@@ -12,7 +12,6 @@ import { Column, Entity, ViewColumn, ViewEntity } from 'typeorm';
 import { Base, BaseFilter, InputData, ListChunk } from './Base';
 import { CheckEvent } from './CheckEvent';
 import { User, UserBase } from './User';
-import { Voter } from './Election';
 
 export enum Operation {
     Create = 'create',
@@ -20,7 +19,7 @@ export enum Operation {
     Delete = 'delete'
 }
 
-export const LogableTable = { User, CheckEvent, Voter };
+export const LogableTable = { User, CheckEvent };
 
 const LogableTableEnum = Object.fromEntries(
     Object.entries(LogableTable).map(([key]) => [key, key])
