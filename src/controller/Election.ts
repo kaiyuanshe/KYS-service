@@ -1,5 +1,7 @@
 import {
     Authorized,
+    Body,
+    BodyParam,
     CurrentUser,
     ForbiddenError,
     JsonController,
@@ -7,23 +9,36 @@ import {
     Post
 } from 'routing-controllers';
 import { ResponseSchema } from 'routing-controllers-openapi';
-import { makeSHA } from 'web-utility';
 
-import { dataSource, User, Voter, VoteTicket } from '../model';
+import {
+    dataSource,
+    ElectionPublicKey,
+    User,
+    Voter,
+    VoteTicket,
+    VoteVerification
+} from '../model';
 import { lark, MemberBiDataTable } from '../utility';
 
 @JsonController('/election')
 export class ElectionController {
     voterStore = dataSource.getRepository(Voter);
+    publicKeyStore = dataSource.getRepository(ElectionPublicKey);
+    algorithm = {
+        name: 'ECDSA',
+        namedCurve: 'P-384',
+        hash: { name: 'SHA-256' }
+    };
 
-    @Post('/:electionName/vote/ticket')
+    @Post('/:electionName/public-key')
     @Authorized()
-    @ResponseSchema(VoteTicket)
-    async createVoteTicket(
+    @ResponseSchema(ElectionPublicKey)
+    async savePublicKey(
         @CurrentUser() createdBy: User,
-        @Param('electionName') electionName: string
-    ): Promise<VoteTicket> {
-        const { id, nickName, mobilePhone, email } = createdBy;
+        @Param('electionName') electionName: string,
+        @BodyParam('jsonWebKey') jsonWebKey: string
+    ) {
+        const { id, nickName, mobilePhone } = createdBy;
 
         const duplicatedVoter = await this.voterStore.findOneBy({
             createdBy: { id },
@@ -43,15 +58,35 @@ export class ElectionController {
             throw new ForbiddenError(
                 `${nickName} isn't a formal member who has the right to vote in ${electionName} election`
             );
-        await this.voterStore.save({ electionName, createdBy });
-
-        const meta = [
-            nickName,
-            mobilePhone,
-            email,
+        const publicKey = await this.publicKeyStore.save({
             electionName,
-            Math.random()
-        ];
-        return { code: await makeSHA(meta + '') };
+            jsonWebKey
+        });
+        await this.voterStore.save({ createdBy, electionName });
+
+        return publicKey;
+    }
+
+    @Post('/:electionName/vote/verification')
+    @Authorized()
+    @ResponseSchema(VoteVerification)
+    async verifyVote(
+        @Param('electionName') electionName: string,
+        @Body() { publicKey, signature }: VoteTicket
+    ) {
+        const key = await crypto.subtle.importKey(
+            'jwk',
+            JSON.parse(atob(publicKey)),
+            this.algorithm,
+            true,
+            ['verify']
+        );
+        const verified = await crypto.subtle.verify(
+            this.algorithm,
+            key,
+            Buffer.from(signature, 'hex'),
+            new TextEncoder().encode(electionName)
+        );
+        return { electionName, publicKey, signature, verified };
     }
 }

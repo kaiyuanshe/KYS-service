@@ -11,7 +11,7 @@ import {
 } from './CheckEvent';
 import { User } from './User';
 import { ActivityLog, UserRank } from './ActivityLog';
-import { Voter } from './Election';
+import { ElectionPublicKey, Voter } from './Election';
 
 export * from './Base';
 export * from './CheckEvent';
@@ -39,6 +39,7 @@ const commonOptions: Pick<
         UserActivityCheckInSummary,
         ActivityAgendaCheckInSummary,
         ActivityCheckInSummary,
+        ElectionPublicKey,
         Voter
     ],
     migrations: [`${isProduct ? '.tmp' : 'migration'}/*.ts`]
