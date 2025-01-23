@@ -3,9 +3,11 @@ import {
     BiDataQueryOptions,
     BiDataTable,
     LarkApp,
+    makeSimpleFilter,
     TableCellLink,
     TableCellValue
 } from 'mobx-lark';
+import { Filter } from 'mobx-restful';
 import { HttpError } from 'routing-controllers';
 import { FindOptionsWhere, ILike } from 'typeorm';
 
@@ -71,6 +73,7 @@ export const lark = new LarkApp({
 export interface Person extends Record<'name' | 'gender' | '手机号', string> {
     email: TableCellLink;
     avatar: TableCellValue;
+    formalMember: boolean;
 }
 
 export class PersonBiDataTable extends BiDataTable<Person>() {
@@ -79,6 +82,12 @@ export class PersonBiDataTable extends BiDataTable<Person>() {
 
     constructor(appId = HR_BASE_ID, tableId = PERSON_TABLE_ID) {
         super(appId, tableId);
+    }
+}
+
+export class MemberBiDataTable extends PersonBiDataTable {
+    makeFilter(filter: Filter<Person>) {
+        return makeSimpleFilter(filter, '=');
     }
 }
 
