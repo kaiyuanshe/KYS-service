@@ -1,6 +1,5 @@
 import { Type } from 'class-transformer';
 import {
-    IsEnum,
     IsInt,
     IsLatLong,
     IsOptional,
@@ -98,6 +97,7 @@ export class CheckEventChunk implements ListChunk<CheckEvent> {
             .createQueryBuilder()
             .from(CheckEvent, 'ce')
             .groupBy('ce.activityId')
+            .addGroupBy('ce.activityName')
             .select('ce.activityId', 'activityId')
             .addSelect('ce.activityName', 'activityName')
             .addSelect('COUNT(ce.id)', 'checkCount')
@@ -122,7 +122,9 @@ export class ActivityCheckInSummary {
         connection
             .createQueryBuilder()
             .from(CheckEvent, 'ce')
-            .groupBy('ce.user.id, ce.activityId')
+            .groupBy('ce.user.id')
+            .addGroupBy('ce.activityId')
+            .addGroupBy('ce.activityName')
             .select('ce.activityId', 'activityId')
             .addSelect('ce.user.id', 'userId')
             .addSelect('ce.activityName', 'activityName')
@@ -144,7 +146,10 @@ export class UserActivityCheckInSummary extends ActivityCheckInSummary {
         connection
             .createQueryBuilder()
             .from(CheckEvent, 'ce')
-            .groupBy('ce.activityId, ce.agendaId')
+            .groupBy('ce.activityId')
+            .addGroupBy('ce.activityName')
+            .addGroupBy('ce.agendaId')
+            .addGroupBy('ce.agendaTitle')
             .select('ce.activityId', 'activityId')
             .addSelect('ce.activityName', 'activityName')
             .addSelect('ce.agendaId', 'agendaId')
