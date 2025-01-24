@@ -1,14 +1,13 @@
-import { BlobServiceClient } from '@azure/storage-blob';
-import { fromBuffer } from 'file-type';
 import { HTTPClient, HTTPError } from 'koajax';
 import {
     BiDataQueryOptions,
     BiDataTable,
     LarkApp,
     makeSimpleFilter,
+    TableCellAttachment,
     TableCellLink,
-    TableCellValue,
-    TableRecordFields
+    TableCellMedia,
+    TableCellValue
 } from 'mobx-lark';
 import { Filter } from 'mobx-restful';
 import { HttpError } from 'routing-controllers';
@@ -20,7 +19,7 @@ export const {
     NODE_ENV,
     PORT = 8080,
     DATABASE_URL,
-    AZURE_BLOB_CONNECTION,
+    WEB_HOST,
     WEB_HOOK_TOKEN,
     APP_SECRET,
     LEANCLOUD_API_HOST,
@@ -73,10 +72,6 @@ export const lark = new LarkApp({
     secret: LARK_APP_SECRET
 });
 
-export class CommonBiDataTable extends BiDataTable<TableRecordFields>() {
-    client = lark.client;
-}
-
 export interface Person extends Record<'name' | 'gender' | '手机号', string> {
     email: TableCellLink;
     avatar: TableCellValue;
@@ -98,55 +93,15 @@ export class MemberBiDataTable extends PersonBiDataTable {
     }
 }
 
-export const blobURLOf = (value: TableCellValue) =>
-    value instanceof Array
-        ? typeof value[0] === 'object' &&
-          ('file_token' in value[0] || 'attachmentToken' in value[0])
-            ? `${OWSBlobRoot}/file/${value[0].name}`
-            : ''
-        : value?.toString();
+export function fileURLOf(field: TableCellValue) {
+    if (!(field instanceof Array) || !field[0]) return field + '';
 
-export const parseBlobConnection = (raw: string) =>
-    Object.fromEntries(
-        raw.split(';').map(item => {
-            const [key, ...value] = item.split('=');
+    const file = field[0] as TableCellMedia | TableCellAttachment;
 
-            return [key, value.join('=')];
-        })
-    ) as Record<
-        | 'DefaultEndpointsProtocol'
-        | 'AccountName'
-        | 'AccountKey'
-        | 'EndpointSuffix',
-        string
-    >;
-
-export function blobEndPointOf(connection: string) {
-    const { DefaultEndpointsProtocol, AccountName, EndpointSuffix } =
-        parseBlobConnection(connection);
-
-    return `${DefaultEndpointsProtocol}://${AccountName}.blob.${EndpointSuffix}`;
-}
-
-export const OWSBlobHost = blobEndPointOf(AZURE_BLOB_CONNECTION);
-export const OWSBlobContainer = '$web';
-export const OWSBlobRoot = `${OWSBlobHost}/${OWSBlobContainer}`;
-
-export async function uploadToAzureBlob(
-    data: Buffer,
-    fileName: string,
-    fileType = 'application/octet-stream',
-    containerName = OWSBlobContainer
-) {
-    const client = BlobServiceClient.fromConnectionString(
-        AZURE_BLOB_CONNECTION
+    return (
+        new URL(
+            `api/lark/file/${'file_token' in file ? file.file_token : file.attachmentToken}`,
+            WEB_HOST
+        ) + ''
     );
-    const container = client.getContainerClient(containerName);
-    const file = container.getBlockBlobClient(fileName);
-
-    const { mime } = (await fromBuffer(data)) || {};
-
-    return file.upload(data, data.byteLength, {
-        blobHTTPHeaders: { blobContentType: mime || fileType }
-    });
 }

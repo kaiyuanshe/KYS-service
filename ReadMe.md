@@ -17,9 +17,9 @@
 
 ### Production environment
 
--   Entry: https://service.kaiyuanshe.cn/
--   Document: https://service.kaiyuanshe.cn/docs/
--   Schema: https://service.kaiyuanshe.cn/docs/spec/
+- Entry: https://service.kaiyuanshe.cn/
+- Document: https://service.kaiyuanshe.cn/docs/
+- Schema: https://service.kaiyuanshe.cn/docs/spec/
 
 ### Type package
 
@@ -42,19 +42,19 @@ pnpm i @kaiyuanshe/kys-service -D
 
 ## Environment variables
 
-|          Name           |                   Usage                   |
-| :---------------------: | :---------------------------------------: |
-|     `DATABASE_URL`      |    [PostgreSQL][11] connection string     |
-|      `APP_SECRET`       |         encrypt Password & Token          |
-|    `WEB_HOOK_TOKEN`     | `Authorization` token of Custom Web hooks |
-| `AZURE_BLOB_CONNECTION` |     [Azure Blob Storage][12] service      |
-|  `LEANCLOUD_API_HOST`   |       API domain of [LeanCloud][13]       |
-|   `LEANCLOUD_APP_ID`    |         App ID of [LeanCloud][13]         |
-|   `LEANCLOUD_APP_KEY`   |        App Key of [LeanCloud][13]         |
-|      `LARK_APP_ID`      |         App ID of [Lark API][14]          |
-|    `LARK_APP_SECRET`    |       App Secret of [Lark API][14]        |
-|      `HR_BASE_ID`       |      BI Table ID of HR data in Lark       |
-|    `PERSON_TABLE_ID`    |  BI Data Table ID of Person data in Lark  |
+|         Name         |                   Usage                   |
+| :------------------: | :---------------------------------------: |
+|    `DATABASE_URL`    |    [PostgreSQL][11] connection string     |
+|     `APP_SECRET`     |         encrypt Password & Token          |
+|   `WEB_HOOK_TOKEN`   | `Authorization` token of Custom Web hooks |
+|      `WEB_HOST`      |  Web front-end host with Lark file proxy  |
+| `LEANCLOUD_API_HOST` |       API domain of [LeanCloud][13]       |
+|  `LEANCLOUD_APP_ID`  |         App ID of [LeanCloud][13]         |
+| `LEANCLOUD_APP_KEY`  |        App Key of [LeanCloud][13]         |
+|    `LARK_APP_ID`     |         App ID of [Lark API][14]          |
+|  `LARK_APP_SECRET`   |       App Secret of [Lark API][14]        |
+|     `HR_BASE_ID`     |      BI Table ID of HR data in Lark       |
+|  `PERSON_TABLE_ID`   |  BI Data Table ID of Person data in Lark  |
 
 ## Development
 
@@ -106,7 +106,7 @@ pnpm container
 
 ```shell
 git checkout master
-git tag v1.0.0  # this version tag comes from ./package.json
+git tag v2.0.0  # this version tag comes from ./package.json
 git push origin master --tags
 ```
 
@@ -114,7 +114,7 @@ git push origin master --tags
 
 ```shell
 git checkout master
-git tag type-v1.0.0  # this version tag comes from ./type/package.json
+git tag type-v2.0.0  # this version tag comes from ./type/package.json
 git push origin master --tags
 ```
 
@@ -129,7 +129,6 @@ git push origin master --tags
 [9]: https://github.com/anttiviljami/openapi-backend
 [10]: https://github.com/settings/tokens/new?description=KYS-service&scopes=read:packages
 [11]: https://www.postgresql.org/
-[12]: https://azure.microsoft.com/en-us/products/storage/blobs
 [13]: https://www.leancloud.cn/
 [14]: https://open.feishu.cn/
 [15]: https://code.visualstudio.com/

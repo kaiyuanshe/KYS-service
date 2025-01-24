@@ -1,6 +1,6 @@
 {
     "name": "kys-service",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "license": "AGPL-3.0",
     "author": "shiy2008@gmail.com",
     "description": "RESTful API service of KaiYuanShe",
@@ -17,7 +17,6 @@
         "node": ">=22"
     },
     "dependencies": {
-        "@azure/storage-blob": "^12.26.0",
         "@koa/cors": "^5.0.0",
         "@koa/multer": "^3.0.2",
         "@koa/router": "^13.1.0",
@@ -25,8 +24,6 @@
         "class-validator": "^0.14.1",
         "dotenv": "^16.4.7",
         "ethers": "^6.13.5",
-        "file-type": "^16.5.4",
-        "iterator-helpers-polyfill": "^3.0.1",
         "jsonwebtoken": "^9.0.2",
         "koa": "^2.15.3",
         "koa-bodyparser": "^4.4.1",
@@ -47,18 +44,17 @@
         "sqlite3": "^5.1.7",
         "tslib": "^2.8.1",
         "typeorm": "^0.3.20",
-        "web-fetch": "^1.4.2",
         "web-utility": "^4.4.2"
     },
     "devDependencies": {
-        "@types/jsonwebtoken": "^9.0.7",
+        "@types/jsonwebtoken": "^9.0.8",
         "@types/koa": "^2.15.0",
         "@types/koa-bodyparser": "^4.3.12",
         "@types/koa-logger": "^3.1.5",
-        "@types/node": "^22.10.7",
+        "@types/node": "^22.10.10",
         "get-git-folder": "^0.1.2",
         "husky": "^9.1.7",
-        "lint-staged": "^15.4.1",
+        "lint-staged": "^15.4.2",
         "prettier": "^3.4.2",
         "ts-node-dev": "^2.0.0",
         "typescript": "~5.7.3"

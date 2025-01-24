@@ -15,7 +15,6 @@ import { ElectionPublicKey, Voter } from './Election';
 
 export * from './Base';
 export * from './CheckEvent';
-export * from './Crawler';
 export * from './KToken';
 export * from './User';
 export * from './ActivityLog';
