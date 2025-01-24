@@ -32,7 +32,7 @@ import {
 } from '../model';
 import {
     APP_SECRET,
-    blobURLOf,
+    fileURLOf,
     lark,
     leanClient,
     PersonBiDataTable,
@@ -70,7 +70,7 @@ export class UserController {
                     : gender === '男'
                       ? Gender.Male
                       : Gender.Other,
-            avatar: blobURLOf(avatar)
+            avatar: fileURLOf(avatar)
         });
 
         if (!existed)

@@ -47,6 +47,7 @@ pnpm i @kaiyuanshe/kys-service -D
 |    `DATABASE_URL`    |    [PostgreSQL][11] connection string     |
 |     `APP_SECRET`     |         encrypt Password & Token          |
 |   `WEB_HOOK_TOKEN`   | `Authorization` token of Custom Web hooks |
+|      `WEB_HOST`      |  Web front-end host with Lark file proxy  |
 | `LEANCLOUD_API_HOST` |       API domain of [LeanCloud][13]       |
 |  `LEANCLOUD_APP_ID`  |         App ID of [LeanCloud][13]         |
 | `LEANCLOUD_APP_KEY`  |        App Key of [LeanCloud][13]         |
