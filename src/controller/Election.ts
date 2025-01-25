@@ -51,7 +51,7 @@ export class ElectionController {
         await lark.getAccessToken();
 
         const [formalMember] = await new MemberBiDataTable().getList({
-            手机号: mobilePhone,
+            手机号: mobilePhone.replace(/^\+86-?/, ''),
             formalMember: true
         });
         if (!formalMember)
@@ -74,6 +74,13 @@ export class ElectionController {
         @Param('electionName') electionName: string,
         @Body() { publicKey, signature }: VoteTicket
     ) {
+        const registration = await this.publicKeyStore.findOneBy({
+            electionName,
+            jsonWebKey: publicKey
+        });
+        if (!registration)
+            return { electionName, publicKey, signature, verified: false };
+
         const key = await crypto.subtle.importKey(
             'jwk',
             JSON.parse(atob(publicKey)),
