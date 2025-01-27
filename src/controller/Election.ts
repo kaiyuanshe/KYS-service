@@ -9,6 +9,7 @@ import {
     Post
 } from 'routing-controllers';
 import { ResponseSchema } from 'routing-controllers-openapi';
+import { sleep } from 'web-utility';
 
 import {
     dataSource,
@@ -62,6 +63,8 @@ export class ElectionController {
             electionName,
             jsonWebKey
         });
+        await sleep(Math.random());
+
         await this.voterStore.save({ createdBy, electionName });
 
         return publicKey;
