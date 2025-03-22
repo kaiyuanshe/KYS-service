@@ -36,8 +36,8 @@ importers:
         specifier: ^9.0.2
         version: 9.0.2
       koa:
-        specifier: ^2.15.3
-        version: 2.15.3
+        specifier: ^2.15.4
+        version: 2.15.4
       koa-bodyparser:
         specifier: ^4.4.1
         version: 4.4.1
@@ -615,12 +615,12 @@ packages:
     resolution: {integrity: sha512-IKufZ1o4Ut42YUrZSo8+qnMTrFuKkvyoLXUywKz9GJ5BrhOFGhLdkx9sG4KAnVvbY6kEcSFjLQul+DVmBm2bgA==}
     engines: {node: '>= 6.0.0'}
 
-  call-bind-apply-helpers@1.0.1:
-    resolution: {integrity: sha512-BhYE+WDaywFg2TBWYNXAE+8B1ATnThNBqXHP5nQu0jWJdVvY2hvkpyB3qOmtmDePiS5/BDQ8wASEWGMWRG148g==}
+  call-bind-apply-helpers@1.0.2:
+    resolution: {integrity: sha512-Sp1ablJ0ivDkSzjcaJdxEunN5/XvksFJ2sMBFfq6x0ryhQV/2b/KwFe21cMpmHtPOSij8K99/wSfoEuTObmuMQ==}
     engines: {node: '>= 0.4'}
 
-  call-bound@1.0.3:
-    resolution: {integrity: sha512-YTd+6wGlNlPxSuri7Y6X8tY2dmm12UMH66RpKMhiX6rsk5wXXnYgbUcOt8kiS31/AjfoTOvCsE+w8nZQLQnzHA==}
+  call-bound@1.0.4:
+    resolution: {integrity: sha512-+ys997U96po4Kx/ABpBCqhA9EuxJaQWDQg7295H4hBphv3IZg0boBKuwYpt4YXp6MZ5AmZQnU/tyMTlRpaSejg==}
     engines: {node: '>= 0.4'}
 
   caniuse-lite@1.0.30001695:
@@ -1074,8 +1074,8 @@ packages:
     resolution: {integrity: sha512-LYf1bS5g3PH71uGLVe3jR2jZm2DbJjoQk7w99WAR7fsdzqEuzGUGqFiVszTHTUXGp+N0gT+kLKhy9isUhM5a2Q==}
     hasBin: true
 
-  get-intrinsic@1.2.7:
-    resolution: {integrity: sha512-VW6Pxhsrk0KAOqs3WEd0klDiF/+V7gQOpAvY1jVU/LHmaD/kQO4523aiJuikX/QAKYiW6x8Jh+RJej1almdtCA==}
+  get-intrinsic@1.3.0:
+    resolution: {integrity: sha512-9fSjSaos/fRIVIp+xSJlE6lfwhES7LNtKaCBIamHsjr2na1BiABJPo0mOjjz8GJDURarmCPGqaiVg5mfjb98CQ==}
     engines: {node: '>= 0.4'}
 
   get-proto@1.0.1:
@@ -1372,8 +1372,8 @@ packages:
     peerDependencies:
       '@types/koa': '*'
 
-  koa@2.15.3:
-    resolution: {integrity: sha512-j/8tY9j5t+GVMLeioLaxweJiKUayFhlGqNTzf2ZGwL0ZCQijd2RLHK0SLW5Tsko8YyyqCZC2cojIb0/s62qTAg==}
+  koa@2.15.4:
+    resolution: {integrity: sha512-7fNBIdrU2PEgLljXoPWoyY4r1e+ToWCmzS/wwMPbUNs7X+5MMET1ObhJBlUkF5uZG9B6QhM2zS1TsH6adegkiQ==}
     engines: {node: ^4.8.4 || ^6.10.1 || ^7.10.1 || >= 8.1.4}
 
   koagger@0.3.0:
@@ -1604,6 +1604,7 @@ packages:
 
   mobx-restful@2.0.0:
     resolution: {integrity: sha512-Rf6gveRfK6pZBl0W8tJ+4wn11Xj3FU2bySPb4GvVL5VoCURehmmNkfcym7GKLWJwunYCqLzepCCn8QmPu3YvTA==}
+    deprecated: Don't use versions with old API & bugs
     peerDependencies:
       mobx: '>=6.11'
 
@@ -3182,15 +3183,15 @@ snapshots:
       mime-types: 2.1.35
       ylru: 1.4.0
 
-  call-bind-apply-helpers@1.0.1:
+  call-bind-apply-helpers@1.0.2:
     dependencies:
       es-errors: 1.3.0
       function-bind: 1.1.2
 
-  call-bound@1.0.3:
+  call-bound@1.0.4:
     dependencies:
-      call-bind-apply-helpers: 1.0.1
-      get-intrinsic: 1.2.7
+      call-bind-apply-helpers: 1.0.2
+      get-intrinsic: 1.3.0
 
   caniuse-lite@1.0.30001695: {}
 
@@ -3412,7 +3413,7 @@ snapshots:
 
   dunder-proto@1.0.1:
     dependencies:
-      call-bind-apply-helpers: 1.0.1
+      call-bind-apply-helpers: 1.0.2
       es-errors: 1.3.0
       gopd: 1.2.0
 
@@ -3697,9 +3698,9 @@ snapshots:
       - '@types/node'
       - supports-color
 
-  get-intrinsic@1.2.7:
+  get-intrinsic@1.3.0:
     dependencies:
-      call-bind-apply-helpers: 1.0.1
+      call-bind-apply-helpers: 1.0.2
       es-define-property: 1.0.1
       es-errors: 1.3.0
       es-object-atoms: 1.1.1
@@ -3902,7 +3903,7 @@ snapshots:
 
   is-generator-function@1.1.0:
     dependencies:
-      call-bound: 1.0.3
+      call-bound: 1.0.4
       get-proto: 1.0.1
       has-tostringtag: 1.0.2
       safe-regex-test: 1.1.0
@@ -3918,7 +3919,7 @@ snapshots:
 
   is-regex@1.2.1:
     dependencies:
-      call-bound: 1.0.3
+      call-bound: 1.0.4
       gopd: 1.2.0
       has-tostringtag: 1.0.2
       hasown: 2.0.2
@@ -4028,7 +4029,7 @@ snapshots:
       lodash: 4.17.21
       read-pkg-up: 7.0.1
 
-  koa@2.15.3:
+  koa@2.15.4:
     dependencies:
       accepts: 1.3.8
       cache-content-type: 1.0.1
@@ -4061,7 +4062,7 @@ snapshots:
       class-transformer: 0.5.1
       class-validator: 0.14.1
       class-validator-jsonschema: 4.0.0(class-transformer@0.5.1)(class-validator@0.14.1)
-      koa: 2.15.3
+      koa: 2.15.4
       koa-mount: 4.0.0
       koa2-swagger-ui: 5.11.0(@types/koa@2.15.0)
       openapi-backend: 5.11.1
@@ -4765,7 +4766,7 @@ snapshots:
       body-parser: 1.20.3
       express: 4.21.2
       express-session: 1.18.1
-      koa: 2.15.3
+      koa: 2.15.4
       koa-bodyparser: 4.4.1
       multer: 1.4.5-lts.1
     transitivePeerDependencies:
@@ -4781,7 +4782,7 @@ snapshots:
 
   safe-regex-test@1.1.0:
     dependencies:
-      call-bound: 1.0.3
+      call-bound: 1.0.4
       es-errors: 1.3.0
       is-regex: 1.2.1
 
@@ -4845,16 +4846,16 @@ snapshots:
 
   side-channel-map@1.0.1:
     dependencies:
-      call-bound: 1.0.3
+      call-bound: 1.0.4
       es-errors: 1.3.0
-      get-intrinsic: 1.2.7
+      get-intrinsic: 1.3.0
       object-inspect: 1.13.3
 
   side-channel-weakmap@1.0.2:
     dependencies:
-      call-bound: 1.0.3
+      call-bound: 1.0.4
       es-errors: 1.3.0
-      get-intrinsic: 1.2.7
+      get-intrinsic: 1.3.0
       object-inspect: 1.13.3
       side-channel-map: 1.0.1
 
